@@ -5,6 +5,7 @@ import Image from "next/image";
 
 export default function Home() {
   const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
+  const [showAngryMom, setShowAngryMom] = useState(false);
   const hasPlayedAllEggsAudio = useRef(false);
   const firstSectionRef = useRef<HTMLElement | null>(null);
   const allEggsBroken = eggClicks.every((clicks) => clicks >= 4);
@@ -39,6 +40,20 @@ export default function Home() {
     }
 
     firstSectionRef.current.scrollIntoView({ block: "start", behavior: "auto" });
+  }, [allEggsBroken]);
+
+  useEffect(() => {
+    if (!allEggsBroken) {
+      return;
+    }
+
+    const angryMomTimer = window.setTimeout(() => {
+      setShowAngryMom(true);
+    }, 5000);
+
+    return () => {
+      window.clearTimeout(angryMomTimer);
+    };
   }, [allEggsBroken]);
 
   const normalEggSize = { width: 140, height: 170 };
@@ -92,13 +107,13 @@ export default function Home() {
         style={{ backgroundImage: "url('/1.png')" }}
       >
         <Image
-          src={allEggsBroken ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
+          src={showAngryMom ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
           alt="Mamá pato"
           width={260}
           height={260}
           priority
           className={`pointer-events-none absolute bottom-[clamp(-14px,-0.6vw,8px)] z-40 h-auto ${
-            allEggsBroken
+            showAngryMom
               ? "right-[clamp(-62px,-4vw,-8px)] w-[clamp(470px,56vw,1020px)]"
               : "right-[clamp(-8px,-0.6vw,16px)] w-[clamp(300px,36vw,640px)]"
           }`}
@@ -109,6 +124,11 @@ export default function Home() {
             ? "Todo era alegria para la granja ya que todos los pollitos habian nacido sanos y precioso. Pero..."
             : "Un dia soleado mama pato estaba muy feliz ya que sabia que sus polluelos estaban a punto de nacer."}
         </p>
+        {showAngryMom && (
+          <p className="absolute left-[clamp(16px,3vw,56px)] top-[calc(clamp(16px,4vw,72px)+clamp(110px,12vw,160px))] z-40 max-w-[clamp(220px,30vw,500px)] rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,24px)] py-[clamp(10px,1.2vw,18px)] text-[clamp(18px,2vw,34px)] font-semibold leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+            ¿Por qué había uno diferente?
+          </p>
+        )}
         <div className="relative h-[clamp(220px,32vw,520px)] w-[clamp(300px,44vw,760px)] translate-y-12 sm:translate-y-16">
           {eggPositions.map((egg, index) => {
             const isBroken = eggClicks[index] >= 4;
