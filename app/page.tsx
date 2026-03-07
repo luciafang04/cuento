@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -8,8 +8,12 @@ export default function Home() {
   const [showAngryMom, setShowAngryMom] = useState(false);
   const [isSectionTwoLocked, setIsSectionTwoLocked] = useState(false);
   const [sectionTwoStoryTriggered, setSectionTwoStoryTriggered] = useState(false);
+  const [showDoubtDarkDuck, setShowDoubtDarkDuck] = useState(false);
   const hasPlayedAllEggsAudio = useRef(false);
   const hasCompletedSectionTwoSequence = useRef(false);
+  const hasStartedSectionTwoSequence = useRef(false);
+  const sectionTwoDelayTimer = useRef<number | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
   const firstSectionRef = useRef<HTMLElement | null>(null);
   const secondSectionRef = useRef<HTMLElement | null>(null);
   const allEggsBroken = eggClicks.every((clicks) => clicks >= 4);
@@ -65,13 +69,18 @@ export default function Home() {
       return;
     }
 
+    const scrollContainer = mainRef.current;
+    if (!scrollContainer) {
+      return;
+    }
+
     const handleScroll = () => {
       if (hasCompletedSectionTwoSequence.current) {
         return;
       }
 
       const secondSectionTop = secondSectionRef.current?.offsetTop ?? Infinity;
-      if (window.scrollY < secondSectionTop - 2) {
+      if (scrollContainer.scrollTop < secondSectionTop - 2) {
         return;
       }
 
@@ -79,9 +88,9 @@ export default function Home() {
       setIsSectionTwoLocked(true);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    scrollContainer.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      scrollContainer.removeEventListener("scroll", handleScroll);
     };
   }, [isSectionTwoLocked]);
 
@@ -90,21 +99,30 @@ export default function Home() {
       return;
     }
 
+    const scrollContainer = mainRef.current;
+    if (!scrollContainer) {
+      return;
+    }
+
     const secondSectionTop = secondSectionRef.current?.offsetTop ?? 0;
-    window.scrollTo({ top: secondSectionTop, behavior: "auto" });
-    document.documentElement.style.overflowY = "hidden";
-    document.body.style.overflowY = "hidden";
+    scrollContainer.scrollTo({ top: secondSectionTop, behavior: "auto" });
 
     const triggerStory = () => {
       if (!sectionTwoStoryTriggered) {
-        setSectionTwoStoryTriggered(true);
+        if (hasStartedSectionTwoSequence.current) {
+          return;
+        }
+        hasStartedSectionTwoSequence.current = true;
+        sectionTwoDelayTimer.current = window.setTimeout(() => {
+          setSectionTwoStoryTriggered(true);
+        }, 1500);
         return;
       }
 
       hasCompletedSectionTwoSequence.current = true;
       setIsSectionTwoLocked(false);
       window.requestAnimationFrame(() => {
-        window.scrollTo({ top: secondSectionTop + 2, behavior: "auto" });
+        scrollContainer.scrollTo({ top: secondSectionTop + 2, behavior: "auto" });
       });
     };
 
@@ -138,20 +156,35 @@ export default function Home() {
       }
     };
 
-    window.addEventListener("wheel", handleWheel, { passive: false });
+    scrollContainer.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("touchstart", handleTouchStart, { passive: false });
-    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    scrollContainer.addEventListener("touchstart", handleTouchStart, { passive: false });
+    scrollContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
 
     return () => {
-      window.removeEventListener("wheel", handleWheel);
+      scrollContainer.removeEventListener("wheel", handleWheel);
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchmove", handleTouchMove);
-      document.documentElement.style.overflowY = "";
-      document.body.style.overflowY = "";
+      scrollContainer.removeEventListener("touchstart", handleTouchStart);
+      scrollContainer.removeEventListener("touchmove", handleTouchMove);
+      if (sectionTwoDelayTimer.current) {
+        window.clearTimeout(sectionTwoDelayTimer.current);
+      }
     };
   }, [isSectionTwoLocked, sectionTwoStoryTriggered]);
+
+  useEffect(() => {
+    if (!sectionTwoStoryTriggered) {
+      return;
+    }
+
+    const darkDuckTimer = window.setTimeout(() => {
+      setShowDoubtDarkDuck(true);
+    }, 1000);
+
+    return () => {
+      window.clearTimeout(darkDuckTimer);
+    };
+  }, [sectionTwoStoryTriggered]);
 
   const normalEggSize = { width: 140, height: 170 };
   const protagonistNormalEggSize = { width: 170, height: 205 };
@@ -197,15 +230,15 @@ export default function Home() {
   ];
 
   return (
-    <main className="w-screen overflow-x-hidden">
+    <main ref={mainRef} className="h-screen w-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden">
       <section
         ref={firstSectionRef}
-        className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-cover bg-center bg-no-repeat"
+        className="relative flex h-screen w-screen snap-start items-center justify-center overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/1.png')" }}
       >
         <Image
           src={showAngryMom ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
-          alt="Mamá pato"
+          alt="MamÃ¡ pato"
           width={260}
           height={260}
           priority
@@ -216,13 +249,13 @@ export default function Home() {
           }`}
           style={{ transform: "scaleX(-1)" }}
         />
-        <p className="absolute left-[clamp(16px,3vw,56px)] top-[clamp(16px,4vw,72px)] z-40 max-w-[clamp(230px,34vw,560px)] rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+        <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-40 w-[min(82vw,700px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           {allEggsBroken
             ? "Todo era alegria para la granja ya que todos los pollitos habian nacido sanos y precioso. Pero..."
             : "Un dia soleado mama pato estaba muy feliz ya que sabia que sus polluelos estaban a punto de nacer."}
         </p>
         {showAngryMom && (
-          <p className="absolute left-[clamp(16px,3vw,56px)] top-[calc(clamp(16px,4vw,72px)+clamp(110px,12vw,160px))] z-40 max-w-[clamp(220px,30vw,500px)] rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,24px)] py-[clamp(10px,1.2vw,18px)] text-[clamp(18px,2vw,34px)] font-semibold leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+          <p className="absolute left-1/2 top-[calc(clamp(26px,7vh,110px)+clamp(108px,13vh,186px))] z-40 w-[min(78vw,640px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,24px)] py-[clamp(10px,1.2vw,18px)] text-center text-[clamp(18px,2vw,34px)] font-semibold leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
             ¿Por qué había uno diferente?
           </p>
         )}
@@ -316,9 +349,14 @@ export default function Home() {
 
       <section
         ref={secondSectionRef}
-        className="relative h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat"
+        className="relative h-screen w-screen snap-start overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/2.png')" }}
       >
+        <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-30 w-[min(82vw,700px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+          {showDoubtDarkDuck
+            ? "Pero no lo conseguia, le trataban diferente."
+            : "El patito diferente inetnataba ser uno mas en su familia."}
+        </p>
         <Image
           src={
             sectionTwoStoryTriggered
@@ -360,7 +398,7 @@ export default function Home() {
         />
         <Image
           src={sectionTwoStoryTriggered ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
-          alt="Mamá pato"
+          alt="MamÃ¡ pato"
           width={380}
           height={380}
           className={`pointer-events-none absolute bottom-[clamp(52px,6.8vw,130px)] z-20 h-auto ${
@@ -371,18 +409,25 @@ export default function Home() {
           style={sectionTwoStoryTriggered ? { transform: "scaleX(-1)" } : undefined}
         />
         <Image
-          src="/img/patito_oscuro/patito_oscuro_feliz.png"
+          src={
+            showDoubtDarkDuck
+              ? "/img/patito_oscuro/patito_oscuro_dudoso.png"
+              : "/img/patito_oscuro/patito_oscuro_feliz.png"
+          }
           alt="Patito oscuro"
           width={260}
           height={260}
-          className="pointer-events-none absolute bottom-[clamp(150px,20vw,300px)] left-[clamp(44px,8vw,190px)] z-20 w-[clamp(88px,10.2vw,184px)] h-auto"
+          className={`pointer-events-none absolute bottom-[clamp(150px,20vw,300px)] left-[clamp(44px,8vw,190px)] z-20 h-auto ${
+            showDoubtDarkDuck ? "w-[clamp(70px,8.2vw,150px)]" : "w-[clamp(88px,10.2vw,184px)]"
+          }`}
         />
       </section>
 
       <section
-        className="h-screen w-screen bg-cover bg-center bg-no-repeat"
+        className="h-screen w-screen snap-start bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/3.png')" }}
       />
     </main>
   );
 }
+
