@@ -1,65 +1,116 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 
 export default function Home() {
+  const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
+
+  const handleEggClick = (index: number) => {
+    setEggClicks((prev) => prev.map((clicks, i) => (i === index ? Math.min(clicks + 1, 4) : clicks)));
+  };
+
+  const normalEggSize = { width: 140, height: 170 };
+  const protagonistNormalEggSize = { width: 170, height: 205 };
+  const protagonistBrokenSize = { width: 430, height: 510 };
+  const sideBrokenScale = 2.35;
+  const normalEggWidth = "clamp(90px, 10vw, 220px)";
+  const protagonistNormalEggWidth = "clamp(110px, 12vw, 260px)";
+  const sideBrokenWidth = "clamp(190px, 22vw, 470px)";
+  const protagonistBrokenWidth = "clamp(250px, 28vw, 560px)";
+  const protagonistBrokenDropY = "clamp(24px, 4vw, 44px)";
+  const protagonistBrokenShiftRight = "clamp(-110px, -7vw, -48px)";
+  const sideBrokenDropY = "clamp(30px, 6vw, 62px)";
+  const sideBrokenShiftRight = "clamp(-72px, -5vw, -30px)";
+
+  const eggPositions = [
+    {
+      buttonClass: "z-10 left-[31.8%] top-[18%]",
+      label: "Huevo 1",
+    },
+    {
+      buttonClass: "z-20 left-[11.5%] top-[34%]",
+      label: "Huevo 2",
+    },
+    {
+      buttonClass: "z-20 left-[52.1%] top-[34%]",
+      label: "Huevo 3",
+    },
+    {
+      buttonClass: "z-30 left-[31.8%] top-[40%]",
+      label: "Huevo 4",
+    },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="w-screen overflow-x-hidden">
+      <section
+        className="relative flex h-screen w-screen items-center justify-center bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/1.png')" }}
+      >
+        <div className="relative h-[clamp(220px,32vw,520px)] w-[clamp(300px,44vw,760px)] translate-y-12 sm:translate-y-16">
+          {eggPositions.map((egg, index) => {
+            const isBroken = eggClicks[index] >= 4;
+            const isProtagonist = index === 0;
+            const normalSize = isProtagonist ? protagonistNormalEggSize : normalEggSize;
+            const sideBrokenSize = {
+              width: Math.round(normalEggSize.width * sideBrokenScale),
+              height: Math.round(normalEggSize.height * sideBrokenScale),
+            };
+            const size = isBroken
+              ? isProtagonist
+                ? protagonistBrokenSize
+                : sideBrokenSize
+              : normalSize;
+            const brokenDropY = isProtagonist ? protagonistBrokenDropY : sideBrokenDropY;
+            const brokenShiftRight = isProtagonist
+              ? protagonistBrokenShiftRight
+              : sideBrokenShiftRight;
+            const renderWidth = isBroken
+              ? isProtagonist
+                ? protagonistBrokenWidth
+                : sideBrokenWidth
+              : isProtagonist
+                ? protagonistNormalEggWidth
+                : normalEggWidth;
+
+            return (
+              <button
+                key={egg.label}
+                type="button"
+                aria-label={egg.label}
+                className={`absolute cursor-pointer border-0 bg-transparent p-0 ${egg.buttonClass}`}
+                onClick={() => handleEggClick(index)}
+              >
+                <Image
+                  src={isBroken ? "/huevo_roto.png" : "/huevo.png"}
+                  alt="Huevo en el nido"
+                  width={size.width}
+                  height={size.height}
+                  priority
+                  style={{
+                    width: renderWidth,
+                    height: "auto",
+                    marginLeft: isBroken ? brokenShiftRight : "0px",
+                    marginTop: isBroken ? brokenDropY : "0px",
+                    transform: isBroken ? "scaleX(-1)" : "none",
+                  }}
+                />
+              </button>
+            );
+          })}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      </section>
+
+      <section
+        className="h-screen w-screen bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/2.png')" }}
+      />
+
+      <section
+        className="h-screen w-screen bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/3.png')" }}
+      />
+    </main>
   );
 }
