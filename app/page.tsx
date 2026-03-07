@@ -6,8 +6,12 @@ import Image from "next/image";
 export default function Home() {
   const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
   const [showAngryMom, setShowAngryMom] = useState(false);
+  const [isSectionTwoLocked, setIsSectionTwoLocked] = useState(false);
+  const [sectionTwoStoryTriggered, setSectionTwoStoryTriggered] = useState(false);
   const hasPlayedAllEggsAudio = useRef(false);
+  const hasCompletedSectionTwoSequence = useRef(false);
   const firstSectionRef = useRef<HTMLElement | null>(null);
+  const secondSectionRef = useRef<HTMLElement | null>(null);
   const allEggsBroken = eggClicks.every((clicks) => clicks >= 4);
 
   const playCrackSound = () => {
@@ -55,6 +59,99 @@ export default function Home() {
       window.clearTimeout(angryMomTimer);
     };
   }, [allEggsBroken]);
+
+  useEffect(() => {
+    if (isSectionTwoLocked) {
+      return;
+    }
+
+    const handleScroll = () => {
+      if (hasCompletedSectionTwoSequence.current) {
+        return;
+      }
+
+      const secondSectionTop = secondSectionRef.current?.offsetTop ?? Infinity;
+      if (window.scrollY < secondSectionTop - 2) {
+        return;
+      }
+
+      secondSectionRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+      setIsSectionTwoLocked(true);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isSectionTwoLocked]);
+
+  useEffect(() => {
+    if (!isSectionTwoLocked) {
+      return;
+    }
+
+    const secondSectionTop = secondSectionRef.current?.offsetTop ?? 0;
+    window.scrollTo({ top: secondSectionTop, behavior: "auto" });
+    document.documentElement.style.overflowY = "hidden";
+    document.body.style.overflowY = "hidden";
+
+    const triggerStory = () => {
+      if (!sectionTwoStoryTriggered) {
+        setSectionTwoStoryTriggered(true);
+        return;
+      }
+
+      hasCompletedSectionTwoSequence.current = true;
+      setIsSectionTwoLocked(false);
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: secondSectionTop + 2, behavior: "auto" });
+      });
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      if (event.deltaY > 0) {
+        triggerStory();
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const scrollKeys = ["ArrowDown", "PageDown", "Space"];
+      if (!scrollKeys.includes(event.code)) {
+        return;
+      }
+      event.preventDefault();
+      triggerStory();
+    };
+
+    let touchStartY = 0;
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches[0]?.clientY ?? 0;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const touchY = event.touches[0]?.clientY ?? touchStartY;
+      const deltaY = touchStartY - touchY;
+      event.preventDefault();
+      if (deltaY > 8) {
+        triggerStory();
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      document.documentElement.style.overflowY = "";
+      document.body.style.overflowY = "";
+    };
+  }, [isSectionTwoLocked, sectionTwoStoryTriggered]);
 
   const normalEggSize = { width: 140, height: 170 };
   const protagonistNormalEggSize = { width: 170, height: 205 };
@@ -218,9 +315,69 @@ export default function Home() {
       </section>
 
       <section
-        className="h-screen w-screen bg-cover bg-center bg-no-repeat"
+        ref={secondSectionRef}
+        className="relative h-screen w-screen overflow-hidden bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: "url('/2.png')" }}
-      />
+      >
+        <Image
+          src={
+            sectionTwoStoryTriggered
+              ? "/img/patitos_amarillos/patito_amarillos_4.png"
+              : "/img/patitos_amarillos/patito_amarillos_2.png"
+          }
+          alt="Patito amarillo"
+          width={230}
+          height={230}
+          className={`pointer-events-none absolute bottom-[clamp(130px,16vw,260px)] right-[clamp(430px,48vw,900px)] z-10 h-auto ${
+            sectionTwoStoryTriggered ? "w-[clamp(72px,8.2vw,152px)]" : "w-[clamp(80px,9.2vw,170px)]"
+          }`}
+        />
+        <Image
+          src={
+            sectionTwoStoryTriggered
+              ? "/img/patitos_amarillos/patito_amarillo_10.png"
+              : "/img/patitos_amarillos/patito_amarillos_7.png"
+          }
+          alt="Patito amarillo"
+          width={230}
+          height={230}
+          className={`pointer-events-none absolute bottom-[clamp(112px,13vw,220px)] right-[clamp(360px,40vw,760px)] z-10 h-auto ${
+            sectionTwoStoryTriggered ? "w-[clamp(76px,8.8vw,160px)]" : "w-[clamp(86px,10vw,182px)]"
+          }`}
+        />
+        <Image
+          src={
+            sectionTwoStoryTriggered
+              ? "/img/patitos_amarillos/patito_amarillo_11.png"
+              : "/img/patitos_amarillos/patito_amarillos_9.png"
+          }
+          alt="Patito amarillo"
+          width={230}
+          height={230}
+          className={`pointer-events-none absolute bottom-[clamp(146px,18vw,286px)] right-[clamp(500px,56vw,1000px)] z-10 h-auto ${
+            sectionTwoStoryTriggered ? "w-[clamp(66px,7.6vw,140px)]" : "w-[clamp(74px,8.6vw,160px)]"
+          }`}
+        />
+        <Image
+          src={sectionTwoStoryTriggered ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
+          alt="Mamá pato"
+          width={380}
+          height={380}
+          className={`pointer-events-none absolute bottom-[clamp(52px,6.8vw,130px)] z-20 h-auto ${
+            sectionTwoStoryTriggered
+              ? "right-[clamp(44px,5.5vw,150px)] w-[clamp(420px,48vw,860px)]"
+              : "right-[clamp(112px,12vw,260px)] w-[clamp(280px,33vw,620px)]"
+          }`}
+          style={sectionTwoStoryTriggered ? { transform: "scaleX(-1)" } : undefined}
+        />
+        <Image
+          src="/img/patito_oscuro/patito_oscuro_feliz.png"
+          alt="Patito oscuro"
+          width={260}
+          height={260}
+          className="pointer-events-none absolute bottom-[clamp(150px,20vw,300px)] left-[clamp(44px,8vw,190px)] z-20 w-[clamp(88px,10.2vw,184px)] h-auto"
+        />
+      </section>
 
       <section
         className="h-screen w-screen bg-cover bg-center bg-no-repeat"
