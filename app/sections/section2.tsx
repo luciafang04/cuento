@@ -20,8 +20,8 @@ export default function Section2({
     >
       <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-30 w-[min(82vw,700px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
         {showDoubtDarkDuck
-          ? "Pero no lo conseguia, le trataban diferente."
-          : "El patito diferente inetnataba ser uno mas en su familia."}
+          ? "Pero no lo conseguía, le trataban diferente."
+          : "El patito diferente intentaba ser uno más en su familia."}
       </p>
       <Image
         src={
@@ -30,10 +30,10 @@ export default function Section2({
             : "/img/patitos_amarillos/patito_amarillos_2.png"
         }
         alt="Patito amarillo"
-        width={230}
-        height={230}
-        className={`pointer-events-none absolute bottom-[clamp(130px,16vw,260px)] right-[clamp(430px,48vw,900px)] z-10 h-auto ${
-          sectionTwoStoryTriggered ? "w-[clamp(72px,8.2vw,152px)]" : "w-[clamp(80px,9.2vw,170px)]"
+        width={220}
+        height={220}
+        className={`pointer-events-none absolute bottom-[clamp(144px,17.2vw,286px)] right-[clamp(410px,46vw,860px)] z-10 h-auto ${
+          sectionTwoStoryTriggered ? "w-[clamp(66px,7.6vw,140px)]" : "w-[clamp(74px,8.5vw,156px)]"
         }`}
       />
       <Image
@@ -45,8 +45,8 @@ export default function Section2({
         alt="Patito amarillo"
         width={230}
         height={230}
-        className={`pointer-events-none absolute bottom-[clamp(112px,13vw,220px)] right-[clamp(360px,40vw,760px)] z-10 h-auto ${
-          sectionTwoStoryTriggered ? "w-[clamp(76px,8.8vw,160px)]" : "w-[clamp(86px,10vw,182px)]"
+        className={`pointer-events-none absolute bottom-[clamp(124px,14.2vw,242px)] right-[clamp(330px,37vw,700px)] z-10 h-auto ${
+          sectionTwoStoryTriggered ? "w-[clamp(70px,8.1vw,148px)]" : "w-[clamp(80px,9.3vw,170px)]"
         }`}
       />
       <Image
@@ -56,15 +56,15 @@ export default function Section2({
             : "/img/patitos_amarillos/patito_amarillos_9.png"
         }
         alt="Patito amarillo"
-        width={230}
-        height={230}
-        className={`pointer-events-none absolute bottom-[clamp(146px,18vw,286px)] right-[clamp(500px,56vw,1000px)] z-10 h-auto ${
-          sectionTwoStoryTriggered ? "w-[clamp(66px,7.6vw,140px)]" : "w-[clamp(74px,8.6vw,160px)]"
+        width={210}
+        height={210}
+        className={`pointer-events-none absolute bottom-[clamp(162px,19.5vw,320px)] right-[clamp(500px,55vw,980px)] z-10 h-auto ${
+          sectionTwoStoryTriggered ? "w-[clamp(60px,7vw,128px)]" : "w-[clamp(68px,8vw,148px)]"
         }`}
       />
       <Image
         src={sectionTwoStoryTriggered ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
-        alt="MamÃ¡ pato"
+        alt="Mama pato"
         width={380}
         height={380}
         className={`pointer-events-none absolute bottom-[clamp(52px,6.8vw,130px)] z-20 h-auto ${
@@ -83,7 +83,7 @@ export default function Section2({
         alt="Patito oscuro"
         width={260}
         height={260}
-        className={`pointer-events-none absolute bottom-[clamp(170px,22vw,320px)] left-[clamp(44px,8vw,190px)] z-20 h-auto ${
+        className={`pointer-events-none absolute bottom-[clamp(310px,35vh,620px)] left-[clamp(90px,11vw,260px)] z-20 h-auto xl:bottom-[clamp(390px,41vh,760px)] 2xl:bottom-[clamp(460px,47vh,900px)] ${
           showDoubtDarkDuck ? "w-[clamp(70px,8.2vw,150px)]" : "w-[clamp(88px,10.2vw,184px)]"
         }`}
       />

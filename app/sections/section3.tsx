@@ -29,12 +29,12 @@ export default function Section3({
       style={{ backgroundImage: "url('/3.png')" }}
     >
       <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-30 w-[min(84vw,760px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-        Él siempre sintió el rechazo que su propia familia le hacía por ser diferente y eso le puso muy triste.
+        El patito estaba cnsado de que le trataran diferente, además le decían siempr eque era muy feo.
       </p>
       {showSectionThreeDarkDuck && (
         <div
           ref={sectionThreeDarkDuckRef}
-          className="pointer-events-none absolute bottom-[clamp(124px,17vw,236px)] left-[64%] z-10 w-[clamp(76px,8.8vw,146px)] -translate-x-1/2"
+          className="pointer-events-none absolute bottom-[clamp(124px,17vw,236px)] left-[67%] z-10 w-[clamp(76px,8.8vw,146px)] -translate-x-1/2 xl:left-[68%] 2xl:left-[69%]"
         >
           <Image
             src={
@@ -51,7 +51,7 @@ export default function Section3({
       )}
       <div
         ref={sectionThreeDuckOneRef}
-        className="pointer-events-none absolute bottom-[clamp(102px,13.5vw,214px)] left-[clamp(45%,50vw,53%)] z-20 w-[clamp(100px,11vw,190px)]"
+        className="pointer-events-none absolute bottom-[clamp(102px,13.5vw,214px)] left-[clamp(49%,54vw,58%)] z-20 w-[clamp(100px,11vw,190px)] xl:left-[clamp(52%,56vw,60%)] 2xl:left-[clamp(54%,58vw,62%)]"
       >
         <Image
           src={
@@ -67,7 +67,7 @@ export default function Section3({
       </div>
       <div
         ref={sectionThreeDuckTwoRef}
-        className="pointer-events-none absolute bottom-[clamp(108px,14vw,222px)] left-[clamp(54%,58vw,61%)] z-20 w-[clamp(88px,9.8vw,170px)]"
+        className="pointer-events-none absolute bottom-[clamp(108px,14vw,222px)] left-[clamp(58%,62vw,66%)] z-20 w-[clamp(88px,9.8vw,170px)] xl:left-[clamp(61%,65vw,69%)] 2xl:left-[clamp(63%,67vw,71%)]"
       >
         <Image
           src={
@@ -83,7 +83,7 @@ export default function Section3({
       </div>
       <div
         ref={sectionThreeDuckSixRef}
-        className="pointer-events-none absolute bottom-[clamp(104px,13.8vw,218px)] left-[clamp(61%,65vw,68%)] z-20 w-[clamp(96px,10.6vw,182px)]"
+        className="pointer-events-none absolute bottom-[clamp(104px,13.8vw,218px)] left-[clamp(65%,69vw,73%)] z-20 w-[clamp(96px,10.6vw,182px)] xl:left-[clamp(68%,72vw,76%)] 2xl:left-[clamp(70%,74vw,78%)]"
       >
         <Image
           src={

@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import { RefObject } from "react";
 
 type Section1Props = {
@@ -60,6 +60,8 @@ export default function Section1({
   eggClicks,
   onEggClick,
 }: Section1Props) {
+  const hasStartedEggClicks = eggClicks.some((clicks) => clicks > 0);
+
   return (
     <section
       ref={firstSectionRef}
@@ -68,7 +70,7 @@ export default function Section1({
     >
       <Image
         src={showAngryMom ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
-        alt="MamÃ¡ pato"
+        alt="Mamá pato"
         width={260}
         height={260}
         priority
@@ -81,12 +83,17 @@ export default function Section1({
       />
       <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-40 w-[min(82vw,700px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
         {allEggsBroken
-          ? "Todo era alegria para la granja ya que todos los pollitos habian nacido sanos y precioso. Pero..."
-          : "Un dia soleado mama pato estaba muy feliz ya que sabia que sus polluelos estaban a punto de nacer."}
+          ? "Todo era alegría para la granja ya que todos los pollitos habían nacido sanos y preciosos. Pero..."
+          : "Un día soleado mamá pato estaba muy feliz ya que sabía que sus polluelos estaban a punto de nacer."}
       </p>
       {showAngryMom && (
         <p className="absolute left-1/2 top-[calc(clamp(26px,7vh,110px)+clamp(108px,13vh,186px))] z-40 w-[min(78vw,640px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,24px)] py-[clamp(10px,1.2vw,18px)] text-center text-[clamp(18px,2vw,34px)] font-semibold leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           ¿Por qué había uno diferente?
+        </p>
+      )}
+      {!hasStartedEggClicks && (
+        <p className="pointer-events-none absolute left-[49%] top-[66%] z-50 -translate-x-1/2 text-[clamp(9px,0.9vw,14px)] font-semibold text-neutral-900 animate-pulse">
+          click!
         </p>
       )}
       <div className="relative h-[clamp(220px,32vw,520px)] w-[clamp(300px,44vw,760px)] translate-y-12 sm:translate-y-16">
