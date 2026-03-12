@@ -23,3 +23,18 @@ body {
   color: var(--foreground);
   font-family: var(--font-indie-flower), cursive;
 }
+
+@keyframes click-blink {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  45%,
+  55% {
+    opacity: 1;
+  }
+}
+
+.animate-click-blink {
+  animation: click-blink 0.85s steps(1, end) infinite;
+}

@@ -3,11 +3,11 @@ import { useState } from "react";
 
 export default function Section8() {
   const [storyStep, setStoryStep] = useState(0);
-  const maxStep = 3;
+  const maxStep = 2;
   const clampedStep = Math.max(0, Math.min(storyStep, maxStep));
   const showShortThought = clampedStep >= 1;
-  const showLongThought = clampedStep >= 2;
-  const showSadDuck = clampedStep >= 3;
+  const showLongThought = clampedStep >= 1;
+  const showSadDuck = clampedStep >= 2;
   const showThoughtfulDuck = clampedStep >= 1;
   const canGoPrev = clampedStep > 0;
   const canGoNext = clampedStep < maxStep;
@@ -32,8 +32,8 @@ export default function Section8() {
             }`}
           >
             {showSadDuck
-              ? "La abuelita si lo queria pero los demas animales no, eran muy hostiles y ya de primeras no lo aceptaron, asi que volvio a buscar un nuevo hogar"
-              : "Encontro otra granja que la llevaba una anciana muy muy amable. Creyo que alli podria ser feliz por fin, pero habia un pequeno detalle...."}
+              ? "La abuelita sí lo quería pero los demás animales no, eran muy hostiles y ya de primeras no lo aceptaron, así que volvió a buscar un nuevo hogar."
+              : "Encontró otra granja que la llevaba una anciana muy muy amable. Creyó que allí podría ser feliz por fin, pero había un pequeño detalle...."}
           </button>
         </div>
         <div className="mt-[clamp(10px,1.4vw,20px)] flex items-center justify-center gap-[clamp(10px,2vw,28px)] text-[clamp(18px,2.2vw,36px)] font-semibold text-neutral-900">
@@ -66,7 +66,7 @@ export default function Section8() {
         </div>
       </div>
       {showShortThought && (
-        <div className="absolute left-[58%] top-[46%] z-30 max-w-[min(34vw,300px)] rounded-[24px] bg-white/75 px-[clamp(10px,1.4vw,16px)] py-[clamp(8px,1.2vw,12px)] text-[clamp(12px,1.1vw,18px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+        <div className="absolute left-[54%] top-[40%] z-30 max-w-[min(34vw,300px)] rounded-[24px] bg-white/75 px-[clamp(10px,1.4vw,16px)] py-[clamp(8px,1.2vw,12px)] text-[clamp(12px,1.1vw,18px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           En cuanto pueda, cazo al nuevo
           <span className="absolute -bottom-[9px] right-[22%] h-[10px] w-[10px] rounded-full bg-white/75" />
           <span className="absolute -bottom-[18px] right-[18%] h-[8px] w-[8px] rounded-full bg-white/75" />
@@ -75,7 +75,7 @@ export default function Section8() {
       )}
       {showLongThought && (
         <div className="absolute left-[68%] top-[66%] z-30 max-w-[min(40vw,360px)] rounded-[24px] bg-white/75 px-[clamp(10px,1.4vw,16px)] py-[clamp(8px,1.2vw,12px)] text-[clamp(12px,1.1vw,18px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-          que se marche ya, no quiero mas gente en MI granja
+          Que se marche ya, no quiero más gente en MI granja
           <span className="absolute -bottom-[9px] left-[26%] h-[10px] w-[10px] rounded-full bg-white/75" />
           <span className="absolute -bottom-[18px] left-[22%] h-[8px] w-[8px] rounded-full bg-white/75" />
           <span className="absolute -bottom-[24px] left-[19%] h-[6px] w-[6px] rounded-full bg-white/75" />
@@ -92,7 +92,13 @@ export default function Section8() {
         alt={showSadDuck ? "Patito oscuro triste" : showThoughtfulDuck ? "Patito oscuro pensando" : "Patito oscuro feliz"}
         width={260}
         height={260}
-        className="pointer-events-none absolute left-[60%] top-[67%] z-20 h-auto w-[clamp(46px,5.6vw,92px)] -translate-x-1/2 -translate-y-1/2"
+        className={`pointer-events-none absolute left-[60%] top-[67%] z-20 h-auto -translate-x-1/2 -translate-y-1/2 ${
+          showSadDuck
+            ? "w-[clamp(60px,7vw,120px)]"
+            : showThoughtfulDuck
+              ? "w-[clamp(60px,7vw,120px)]"
+              : "w-[clamp(78px,9vw,150px)]"
+        }`}
       />
     </section>
   );

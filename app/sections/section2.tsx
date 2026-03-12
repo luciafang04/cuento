@@ -13,8 +13,8 @@ export default function Section2({
   onStoryStepChange,
 }: Section2Props) {
   const storyTexts = [
-    "El patito diferente intentaba ser uno mas en su familia.",
-    "Pero no lo conseguia, le trataban diferente.",
+    "El patito oscuro intentaba ser uno más en su familia.",
+    "Pero no lo conseguía, le trataban diferente tanto su madre como sus hermanos.",
   ];
   const clampedStep = Math.max(0, Math.min(storyStep, storyTexts.length - 1));
   const canGoPrev = clampedStep > 0;
@@ -130,7 +130,7 @@ export default function Section2({
         alt="Patito oscuro"
         width={260}
         height={260}
-        className={`pointer-events-none absolute bottom-[clamp(310px,35vh,620px)] left-[clamp(90px,11vw,260px)] z-20 h-auto xl:bottom-[clamp(390px,41vh,760px)] 2xl:bottom-[clamp(460px,47vh,900px)] ${
+        className={`pointer-events-none absolute bottom-[clamp(250px,29vh,540px)] left-[clamp(90px,11vw,260px)] z-20 h-auto xl:bottom-[clamp(330px,35vh,680px)] 2xl:bottom-[clamp(400px,41vh,820px)] ${
           showDoubtDarkDuck ? "w-[clamp(70px,8.2vw,150px)]" : "w-[clamp(88px,10.2vw,184px)]"
         }`}
       />

@@ -38,7 +38,7 @@ export default function Section4() {
       <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-30 w-[min(84vw,760px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
         {isSunClicked
           ? "Y una vez cayó la noche, el patito feo se fue hacia el bosque."
-          : "Ya cansado de las burlas por su físico y el trato que le daban, decidió esperar a la noche para irse de la granja."}
+          : "Ya cansado de las burlas y el trato que le daban, decidió esperar a la noche para irse de la granja."}
       </p>
       {!isSunClicked && (
         <>
@@ -56,7 +56,7 @@ export default function Section4() {
               className="h-auto w-[clamp(84px,10vw,196px)]"
             />
           </button>
-          <p className="pointer-events-none absolute left-1/2 top-[2%] z-30 -translate-x-1/2 text-[clamp(11px,1.1vw,18px)] font-semibold text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.9)] animate-pulse">
+          <p className="pointer-events-none absolute left-1/2 top-[2%] z-30 -translate-x-1/2 text-[clamp(11px,1.1vw,18px)] font-semibold text-black drop-shadow-[0_2px_2px_rgba(255,255,255,0.8)] animate-click-blink">
             click!
           </p>
         </>

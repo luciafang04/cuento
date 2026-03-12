@@ -3,7 +3,7 @@ import { useState } from "react";
 
 export default function Section7() {
   const [storyStep, setStoryStep] = useState(0);
-  const maxStep = 9;
+  const maxStep = 8;
   const clampedStep = Math.max(0, Math.min(storyStep, maxStep));
   const canGoPrev = clampedStep > 0;
   const canGoNext = clampedStep < maxStep;
@@ -27,16 +27,16 @@ export default function Section7() {
               canGoNext ? "cursor-pointer" : "cursor-default"
             }`}
           >
-            {clampedStep === 0 && "Despues de caminar y caminar encontro un gran estanque con cisnes."}
-            {clampedStep === 1 && "El patito quedo muy sorprendido al ver lo bellos que eran todos."}
-            {clampedStep >= 9
-              ? "No era un pollito, era un pequeño cisne."
-              : clampedStep >= 8
-                ? "El patito estuvo tanto tiempo buscando un hogar que no se dio cuenta que su plumaje cambio."
+            {clampedStep === 0 && "Después de caminar y caminar encontró un gran estanque con cisnes."}
+            {clampedStep === 1 && "El patito quedó muy sorprendido al ver lo bellos que eran todos."}
+            {clampedStep >= 8
+              ? "No era un patito, era un pequeño cisne."
+              : clampedStep >= 7
+                ? "El patito estuvo tanto tiempo buscando un hogar que no se dio cuenta que su plumaje cambió."
                 : clampedStep >= 6
-                  ? "Pero esta vez paso algo raro, por que dijeron que era uno mas de los suyos si el era feo y ellos eran bonitos?"
+                  ? "Pero esta vez pasó algo raro, ¿por qué dijeron que era uno más de los suyos si él era feo y ellos eran bonitos?"
                   : clampedStep >= 2
-                    ? "Pero se sintio avergonzado porque siempre le habian dicho que el era muy feo."
+                    ? "Pero se sintió avergonzado porque siempre le habían dicho que él era muy feo."
                     : ""}
           </button>
         </div>
@@ -71,18 +71,18 @@ export default function Section7() {
       </div>
       <Image
         src={
-          clampedStep >= 9
+          clampedStep >= 8
             ? "/img/patito_oscuro/patito_blanco.png"
-            : clampedStep >= 7
+            : clampedStep >= 6
               ? "/img/patito_oscuro/pato_blanco_pensativo.png"
               : clampedStep >= 2
                 ? "/img/patito_oscuro/patito_oscuro_trist.png"
                 : "/img/patito_oscuro/sorpresa.png"
         }
         alt={
-          clampedStep >= 9
+          clampedStep >= 8
             ? "Patito blanco"
-            : clampedStep >= 7
+            : clampedStep >= 6
               ? "Patito blanco pensativo"
               : clampedStep >= 2
                 ? "Patito oscuro triste"
@@ -91,7 +91,11 @@ export default function Section7() {
         width={260}
         height={260}
         className={`pointer-events-none absolute left-[62%] top-[46%] z-20 h-auto -translate-x-1/2 -translate-y-1/2 ${
-          clampedStep >= 7 ? "w-[clamp(56px,7vw,128px)] -translate-y-[4px]" : "w-[clamp(48px,5.8vw,100px)]"
+          clampedStep >= 8
+            ? "w-[clamp(64px,8vw,140px)] -translate-y-[64px] top-[4%]"
+            : clampedStep >= 6
+              ? "w-[clamp(84px,10vw,190px)] -translate-y-[80px] top-[8%]"
+              : "w-[clamp(48px,5.8vw,100px)]"
         } ${clampedStep >= 2 && clampedStep < 7 ? "-translate-y-[12px]" : ""}`}
       />
       {clampedStep >= 3 && (
@@ -108,10 +112,12 @@ export default function Section7() {
       )}
       {clampedStep >= 5 && (
         <div className="absolute left-[42%] top-[64%] z-30 max-w-[min(44vw,380px)] rounded-[24px] bg-white/75 px-[clamp(10px,1.4vw,16px)] py-[clamp(8px,1.2vw,12px)] text-[clamp(12px,1.1vw,18px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-          Quieres nadar con nosotros?
+          ¿Quieres nadar con nosotros?
           <span className="absolute left-[-7px] top-[40%] h-[14px] w-[14px] rotate-45 bg-white/75" />
         </div>
       )}
     </section>
   );
 }
+
+

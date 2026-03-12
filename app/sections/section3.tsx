@@ -29,8 +29,8 @@ export default function Section3({
   sectionThreeDuckSixRef,
 }: Section3Props) {
   const storyTexts = [
-    "El patito estaba cnsado de que le trataran diferente, además le decían siempr eque era muy feo.",
-    "El patito estaba cnsado de que le trataran diferente, además le decían siempr eque era muy feo.",
+    "El patito estaba cansadode que le trataran así, además le decían siempre que era muy feo.",
+    "El patito estaba cansadode que le trataran así, además le decían siempre que era muy feo.",
   ];
   const clampedStep = Math.max(0, Math.min(textStep, storyTexts.length - 1));
   const canGoPrev = clampedStep > 0;

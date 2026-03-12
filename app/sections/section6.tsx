@@ -87,8 +87,8 @@ export default function Section6() {
             }`}
           >
             {clampedStep >= 4
-              ? "Aunque lo aceptaban seguían diciéndole feo y prefirió buscar otro hogar"
-              : "El patito feo encontró una familia de patos en el bosque, y se alegró porque le dejaron quedarse con ellos."}
+              ? "Aunque lo aceptaban seguían diciéndole feo y prefirió buscar otro hogar."
+              : "El patito encontró una familia de patos en el bosque, y se alegró porque le dejaron quedarse con ellos."}
           </button>
         </div>
         <div className="mt-[clamp(10px,1.4vw,20px)] flex items-center justify-center gap-[clamp(10px,2vw,28px)] text-[clamp(18px,2.2vw,36px)] font-semibold text-neutral-900">
@@ -122,21 +122,21 @@ export default function Section6() {
       </div>
 
       {visibleDialogs >= 1 && (
-        <div className="absolute left-[50%] top-[44%] z-30 max-w-[min(44vw,360px)] rounded-[26px] bg-white/75 px-[clamp(12px,1.6vw,18px)] py-[clamp(10px,1.4vw,14px)] text-[clamp(13px,1.25vw,21px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+        <div className="absolute left-[50%] top-[41%] z-30 max-w-[min(44vw,360px)] rounded-[26px] bg-white/75 px-[clamp(12px,1.6vw,18px)] py-[clamp(10px,1.4vw,14px)] text-[clamp(13px,1.25vw,21px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           Quédate con nosotros
           <span className="absolute -bottom-[8px] left-[72%] h-[14px] w-[14px] rotate-45 bg-white/75" />
         </div>
       )}
 
       {visibleDialogs >= 2 && (
-        <div className="absolute left-[71%] top-[42%] z-30 max-w-[min(52vw,420px)] rounded-[26px] bg-white/75 px-[clamp(12px,1.6vw,18px)] py-[clamp(10px,1.4vw,14px)] text-[clamp(12px,1.15vw,19px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+        <div className="absolute left-[71%] top-[39%] z-30 max-w-[min(52vw,420px)] rounded-[26px] bg-white/75 px-[clamp(12px,1.6vw,18px)] py-[clamp(10px,1.4vw,14px)] text-[clamp(12px,1.15vw,19px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           Qué pequeñín es, pero... es un poco feo ¿no?
           <span className="absolute -bottom-[8px] left-[20%] h-[14px] w-[14px] -rotate-45 bg-white/75" />
         </div>
       )}
 
       {visibleDialogs >= 3 && (
-        <div className="absolute left-[72%] top-[82%] z-30 max-w-[min(24vw,220px)] rounded-[26px] bg-white/75 px-[clamp(12px,1.6vw,18px)] py-[clamp(10px,1.4vw,14px)] text-[clamp(12px,1.15vw,19px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+        <div className="absolute left-[72%] top-[86%] z-30 max-w-[min(24vw,220px)] rounded-[26px] bg-white/75 px-[clamp(12px,1.6vw,18px)] py-[clamp(10px,1.4vw,14px)] text-[clamp(12px,1.15vw,19px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           jaja, cierto
           <span className="absolute -top-[8px] left-[24%] h-[14px] w-[14px] rotate-45 bg-white/75" />
         </div>
@@ -157,7 +157,9 @@ export default function Section6() {
           alt={clampedStep >= 4 ? "Patito oscuro llorando" : "Patito oscuro encontrando"}
           width={260}
           height={260}
-          className="h-auto w-[clamp(48px,5.8vw,96px)]"
+          className={`h-auto ${
+            clampedStep >= 4 ? "w-[clamp(52px,6.2vw,114px)]" : "w-[clamp(48px,5.8vw,96px)]"
+          }`}
         />
       </div>
     </section>

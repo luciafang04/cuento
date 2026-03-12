@@ -9,6 +9,7 @@ import Section4 from "./sections/section4";
 import Section6 from "./sections/section6";
 import Section7 from "./sections/section7";
 import Section8 from "./sections/section8";
+import Section9 from "./sections/section9";
 
 export default function Home() {
   const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
@@ -343,6 +344,7 @@ export default function Home() {
       <Section6 />
       <Section8 />
       <Section7 />
+      <Section9 />
     </main>
   );
 }
