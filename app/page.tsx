@@ -12,22 +12,19 @@ import Section8 from "./sections/section8";
 
 export default function Home() {
   const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
-  const [showAngryMom, setShowAngryMom] = useState(false);
   const [isSectionTwoLocked, setIsSectionTwoLocked] = useState(false);
   const [isSectionThreeLocked, setIsSectionThreeLocked] = useState(false);
-  const [sectionTwoStoryTriggered, setSectionTwoStoryTriggered] = useState(false);
-  const [showDoubtDarkDuck, setShowDoubtDarkDuck] = useState(false);
-  const [showSectionThreeDarkDuck, setShowSectionThreeDarkDuck] = useState(false);
+  const [sectionTwoStep, setSectionTwoStep] = useState(0);
   const [showSectionThreeSadDarkDuck, setShowSectionThreeSadDarkDuck] = useState(false);
   const [showSectionThreeAlertDucks, setShowSectionThreeAlertDucks] = useState(false);
+  const [sectionThreeStep, setSectionThreeStep] = useState(0);
+  const [sectionThreeTextStep, setSectionThreeTextStep] = useState(0);
   const hasPlayedAllEggsAudio = useRef(false);
   const chicksAudioRef = useRef<HTMLAudioElement | null>(null);
   const hasCompletedSectionTwoSequence = useRef(false);
   const hasStartedSectionTwoSequence = useRef(false);
   const hasCompletedSectionThreeSequence = useRef(false);
   const hasStartedSectionThreeSequence = useRef(false);
-  const sectionTwoDelayTimer = useRef<number | null>(null);
-  const sectionTwoUnlockTimer = useRef<number | null>(null);
   const sectionThreeTimeline = useRef<gsap.core.Timeline | null>(null);
   const sectionThreeSwapTimer = useRef<number | null>(null);
   const sectionThreeRunTimer = useRef<number | null>(null);
@@ -40,7 +37,8 @@ export default function Home() {
   const sectionThreeDuckSixRef = useRef<HTMLDivElement | null>(null);
   const sectionThreeDarkDuckRef = useRef<HTMLDivElement | null>(null);
   const allEggsBroken = eggClicks.every((clicks) => clicks >= 4);
-  const shouldMuteAudio = sectionTwoStoryTriggered;
+  const showSectionThreeDarkDuck = sectionThreeStep >= 1;
+  const shouldMuteAudio = sectionTwoStep >= 1;
 
   const playCrackSound = () => {
     if (shouldMuteAudio) {
@@ -86,19 +84,6 @@ export default function Home() {
     firstSectionRef.current.scrollIntoView({ block: "start", behavior: "auto" });
   }, [allEggsBroken]);
 
-  useEffect(() => {
-    if (!allEggsBroken) {
-      return;
-    }
-
-    const angryMomTimer = window.setTimeout(() => {
-      setShowAngryMom(true);
-    }, 5000);
-
-    return () => {
-      window.clearTimeout(angryMomTimer);
-    };
-  }, [allEggsBroken]);
 
   useEffect(() => {
     if (isSectionTwoLocked) {
@@ -142,83 +127,10 @@ export default function Home() {
 
     const secondSectionTop = secondSectionRef.current?.offsetTop ?? 0;
     scrollContainer.scrollTo({ top: secondSectionTop, behavior: "auto" });
-
-    const triggerStory = () => {
-      if (!sectionTwoStoryTriggered) {
-        if (hasStartedSectionTwoSequence.current) {
-          return;
-        }
-        hasStartedSectionTwoSequence.current = true;
-        sectionTwoDelayTimer.current = window.setTimeout(() => {
-          setSectionTwoStoryTriggered(true);
-        }, 3000);
-        return;
-      }
-    };
-
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      if (event.deltaY > 0) {
-        triggerStory();
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const scrollKeys = ["ArrowDown", "PageDown", "Space"];
-      if (!scrollKeys.includes(event.code)) {
-        return;
-      }
-      event.preventDefault();
-      triggerStory();
-    };
-
-    let touchStartY = 0;
-    const handleTouchStart = (event: TouchEvent) => {
-      touchStartY = event.touches[0]?.clientY ?? 0;
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      const touchY = event.touches[0]?.clientY ?? touchStartY;
-      const deltaY = touchStartY - touchY;
-      event.preventDefault();
-      if (deltaY > 8) {
-        triggerStory();
-      }
-    };
-
-    scrollContainer.addEventListener("wheel", handleWheel, { passive: false });
-    window.addEventListener("keydown", handleKeyDown);
-    scrollContainer.addEventListener("touchstart", handleTouchStart, { passive: false });
-    scrollContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
-
-    return () => {
-      scrollContainer.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("keydown", handleKeyDown);
-      scrollContainer.removeEventListener("touchstart", handleTouchStart);
-      scrollContainer.removeEventListener("touchmove", handleTouchMove);
-      if (sectionTwoDelayTimer.current) {
-        window.clearTimeout(sectionTwoDelayTimer.current);
-        sectionTwoDelayTimer.current = null;
-      }
-    };
-  }, [isSectionTwoLocked, sectionTwoStoryTriggered]);
+  }, [isSectionTwoLocked]);
 
   useEffect(() => {
-    if (!sectionTwoStoryTriggered) {
-      return;
-    }
-
-    const darkDuckTimer = window.setTimeout(() => {
-      setShowDoubtDarkDuck(true);
-    }, 5000);
-
-    return () => {
-      window.clearTimeout(darkDuckTimer);
-    };
-  }, [sectionTwoStoryTriggered]);
-
-  useEffect(() => {
-    if (!isSectionTwoLocked || !showDoubtDarkDuck || hasCompletedSectionTwoSequence.current) {
+    if (!isSectionTwoLocked || sectionTwoStep < 1 || hasCompletedSectionTwoSequence.current) {
       return;
     }
 
@@ -228,21 +140,12 @@ export default function Home() {
     }
 
     const secondSectionTop = secondSectionRef.current?.offsetTop ?? 0;
-    sectionTwoUnlockTimer.current = window.setTimeout(() => {
-      hasCompletedSectionTwoSequence.current = true;
-      setIsSectionTwoLocked(false);
-      window.requestAnimationFrame(() => {
-        scrollContainer.scrollTo({ top: secondSectionTop + 2, behavior: "auto" });
-      });
-    }, 2000);
-
-    return () => {
-      if (sectionTwoUnlockTimer.current) {
-        window.clearTimeout(sectionTwoUnlockTimer.current);
-        sectionTwoUnlockTimer.current = null;
-      }
-    };
-  }, [isSectionTwoLocked, showDoubtDarkDuck]);
+    hasCompletedSectionTwoSequence.current = true;
+    setIsSectionTwoLocked(false);
+    window.requestAnimationFrame(() => {
+      scrollContainer.scrollTo({ top: secondSectionTop + 2, behavior: "auto" });
+    });
+  }, [isSectionTwoLocked, sectionTwoStep]);
 
   useEffect(() => {
     if (isSectionThreeLocked) {
@@ -286,6 +189,55 @@ export default function Home() {
 
     const thirdSectionTop = thirdSectionRef.current?.offsetTop ?? 0;
     scrollContainer.scrollTo({ top: thirdSectionTop, behavior: "auto" });
+  }, [isSectionThreeLocked]);
+
+  useEffect(() => {
+    if (sectionThreeStep !== 0) {
+      return;
+    }
+
+    setSectionThreeTextStep(0);
+    hasCompletedSectionThreeSequence.current = false;
+    hasStartedSectionThreeSequence.current = false;
+    setShowSectionThreeAlertDucks(false);
+    setShowSectionThreeSadDarkDuck(false);
+    sectionThreeTimeline.current?.kill();
+    sectionThreeTimeline.current = null;
+    if (sectionThreeSwapTimer.current) {
+      window.clearTimeout(sectionThreeSwapTimer.current);
+      sectionThreeSwapTimer.current = null;
+    }
+    if (sectionThreeRunTimer.current) {
+      window.clearTimeout(sectionThreeRunTimer.current);
+      sectionThreeRunTimer.current = null;
+    }
+
+    const duckOne = sectionThreeDuckOneRef.current;
+    const duckTwo = sectionThreeDuckTwoRef.current;
+    const duckSix = sectionThreeDuckSixRef.current;
+    const darkDuck = sectionThreeDarkDuckRef.current;
+    if (duckOne || duckTwo || duckSix) {
+      gsap.set([duckOne, duckTwo, duckSix], { x: 0, y: 0, rotation: 0, opacity: 1 });
+    }
+    if (darkDuck) {
+      gsap.set(darkDuck, { y: 0, scale: 1 });
+    }
+  }, [sectionThreeStep]);
+
+  useEffect(() => {
+    if (sectionThreeStep < 1 || hasCompletedSectionThreeSequence.current) {
+      return;
+    }
+    if (hasStartedSectionThreeSequence.current) {
+      return;
+    }
+
+    const scrollContainer = mainRef.current;
+    if (!scrollContainer) {
+      return;
+    }
+
+    const thirdSectionTop = thirdSectionRef.current?.offsetTop ?? 0;
 
     const runSectionThreeScatter = () => {
       const duckOne = sectionThreeDuckOneRef.current;
@@ -312,82 +264,32 @@ export default function Home() {
         .to(duckSix, { x: 240, y: -150, rotation: 20, opacity: 0, duration: 1, ease: "power3.in" }, 0);
     };
 
-    const triggerSceneThree = () => {
-      if (!showSectionThreeDarkDuck) {
-        setShowSectionThreeDarkDuck(true);
+    hasStartedSectionThreeSequence.current = true;
+    sectionThreeSwapTimer.current = window.setTimeout(() => {
+      const darkDuck = sectionThreeDarkDuckRef.current;
+      if (!darkDuck) {
+        setShowSectionThreeAlertDucks(true);
+        sectionThreeRunTimer.current = window.setTimeout(() => {
+          runSectionThreeScatter();
+        }, 1000);
         return;
       }
 
-      if (hasStartedSectionThreeSequence.current) {
-        return;
-      }
-
-      hasStartedSectionThreeSequence.current = true;
-      sectionThreeSwapTimer.current = window.setTimeout(() => {
-        const darkDuck = sectionThreeDarkDuckRef.current;
-        if (!darkDuck) {
+      gsap.to(darkDuck, {
+        y: 34,
+        scale: 1.15,
+        duration: 0.45,
+        ease: "power2.out",
+        onComplete: () => {
           setShowSectionThreeAlertDucks(true);
           sectionThreeRunTimer.current = window.setTimeout(() => {
             runSectionThreeScatter();
           }, 1000);
-          return;
-        }
-
-        gsap.to(darkDuck, {
-          y: 34,
-          scale: 1.15,
-          duration: 0.45,
-          ease: "power2.out",
-          onComplete: () => {
-            setShowSectionThreeAlertDucks(true);
-            sectionThreeRunTimer.current = window.setTimeout(() => {
-              runSectionThreeScatter();
-            }, 1000);
-          },
-        });
-      }, 2000);
-    };
-
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      if (event.deltaY > 0) {
-        triggerSceneThree();
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const scrollKeys = ["ArrowDown", "PageDown", "Space"];
-      if (!scrollKeys.includes(event.code)) {
-        return;
-      }
-      event.preventDefault();
-      triggerSceneThree();
-    };
-
-    let touchStartY = 0;
-    const handleTouchStart = (event: TouchEvent) => {
-      touchStartY = event.touches[0]?.clientY ?? 0;
-    };
-
-    const handleTouchMove = (event: TouchEvent) => {
-      const touchY = event.touches[0]?.clientY ?? touchStartY;
-      const deltaY = touchStartY - touchY;
-      event.preventDefault();
-      if (deltaY > 8) {
-        triggerSceneThree();
-      }
-    };
-
-    scrollContainer.addEventListener("wheel", handleWheel, { passive: false });
-    window.addEventListener("keydown", handleKeyDown);
-    scrollContainer.addEventListener("touchstart", handleTouchStart, { passive: false });
-    scrollContainer.addEventListener("touchmove", handleTouchMove, { passive: false });
+        },
+      });
+    }, 0);
 
     return () => {
-      scrollContainer.removeEventListener("wheel", handleWheel);
-      window.removeEventListener("keydown", handleKeyDown);
-      scrollContainer.removeEventListener("touchstart", handleTouchStart);
-      scrollContainer.removeEventListener("touchmove", handleTouchMove);
       sectionThreeTimeline.current?.kill();
       sectionThreeTimeline.current = null;
       if (sectionThreeSwapTimer.current) {
@@ -399,27 +301,39 @@ export default function Home() {
         sectionThreeRunTimer.current = null;
       }
     };
-  }, [isSectionThreeLocked, showSectionThreeDarkDuck]);
+  }, [sectionThreeStep]);
 
   return (
     <main ref={mainRef} className="h-screen w-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden">
       <Section1
         firstSectionRef={firstSectionRef}
-        showAngryMom={showAngryMom}
         allEggsBroken={allEggsBroken}
         eggClicks={eggClicks}
         onEggClick={handleEggClick}
       />
       <Section2
         secondSectionRef={secondSectionRef}
-        sectionTwoStoryTriggered={sectionTwoStoryTriggered}
-        showDoubtDarkDuck={showDoubtDarkDuck}
+        storyStep={sectionTwoStep}
+        onStoryStepChange={(nextStep) => {
+          setSectionTwoStep(nextStep);
+          if (nextStep > 0) {
+            hasStartedSectionTwoSequence.current = true;
+          }
+        }}
       />
       <Section3
         thirdSectionRef={thirdSectionRef}
         showSectionThreeDarkDuck={showSectionThreeDarkDuck}
         showSectionThreeSadDarkDuck={showSectionThreeSadDarkDuck}
         showSectionThreeAlertDucks={showSectionThreeAlertDucks}
+        textStep={sectionThreeTextStep}
+        onTextStepChange={(nextStep) => {
+          setSectionThreeTextStep(nextStep);
+          if (nextStep === 0) {
+            setSectionThreeStep(0);
+          }
+        }}
+        onAdvanceScene={() => setSectionThreeStep(1)}
         sectionThreeDarkDuckRef={sectionThreeDarkDuckRef}
         sectionThreeDuckOneRef={sectionThreeDuckOneRef}
         sectionThreeDuckTwoRef={sectionThreeDuckTwoRef}

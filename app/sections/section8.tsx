@@ -1,78 +1,70 @@
-﻿import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { useState } from "react";
 
 export default function Section8() {
-  const sectionRef = useRef<HTMLElement | null>(null);
-  const hasStartedSwap = useRef(false);
-  const hasStartedThoughtSequence = useRef(false);
-  const [showThoughtfulDuck, setShowThoughtfulDuck] = useState(false);
-  const [showLongThought, setShowLongThought] = useState(false);
-  const [showShortThought, setShowShortThought] = useState(false);
-  const [showSadDuck, setShowSadDuck] = useState(false);
-
-  useEffect(() => {
-    const sectionEl = sectionRef.current;
-    if (!sectionEl) {
-      return;
-    }
-
-    let swapTimer: number | null = null;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const isVisible = entries[0]?.isIntersecting;
-        if (!isVisible || hasStartedSwap.current) {
-          return;
-        }
-
-        hasStartedSwap.current = true;
-        swapTimer = window.setTimeout(() => {
-          setShowThoughtfulDuck(true);
-        }, 2000);
-      },
-      { threshold: 0.6 },
-    );
-
-    observer.observe(sectionEl);
-
-    return () => {
-      observer.disconnect();
-      if (swapTimer) {
-        window.clearTimeout(swapTimer);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!showThoughtfulDuck || hasStartedThoughtSequence.current) {
-      return;
-    }
-
-    hasStartedThoughtSequence.current = true;
-    setShowShortThought(true);
-    const longThoughtTimer = window.setTimeout(() => {
-      setShowLongThought(true);
-    }, 2000);
-    const sadDuckTimer = window.setTimeout(() => {
-      setShowSadDuck(true);
-    }, 3000);
-
-    return () => {
-      window.clearTimeout(longThoughtTimer);
-      window.clearTimeout(sadDuckTimer);
-    };
-  }, [showThoughtfulDuck]);
+  const [storyStep, setStoryStep] = useState(0);
+  const maxStep = 3;
+  const clampedStep = Math.max(0, Math.min(storyStep, maxStep));
+  const showShortThought = clampedStep >= 1;
+  const showLongThought = clampedStep >= 2;
+  const showSadDuck = clampedStep >= 3;
+  const showThoughtfulDuck = clampedStep >= 1;
+  const canGoPrev = clampedStep > 0;
+  const canGoNext = clampedStep < maxStep;
 
   return (
     <section
-      ref={sectionRef}
       className="relative h-[100vh] w-[100vw] snap-start overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/8.png')" }}
     >
-      <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-30 w-[min(84vw,760px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-        {showSadDuck
-          ? "La abuelita sí lo quería pero los demás animales no, eran muy hostiles y ya de primeras no lo aceptaron, así que volvió a buscar un nuevo hogar"
-          : "Encontró otra granja que la llevaba una anciana muy muy amable. Creyó que allí podría ser feliz por fin, pero había un pequeño detalle...."}
-      </p>
+      <div className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-30 w-[min(84vw,760px)] -translate-x-1/2 text-center">
+        <div className="min-h-[clamp(96px,13vh,170px)] rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
+          <button
+            type="button"
+            onClick={() => {
+              if (canGoNext) {
+                setStoryStep((prev) => Math.min(prev + 1, maxStep));
+              }
+            }}
+            aria-label="Avanzar texto"
+            className={`w-full border-0 bg-transparent p-0 text-center ${
+              canGoNext ? "cursor-pointer" : "cursor-default"
+            }`}
+          >
+            {showSadDuck
+              ? "La abuelita si lo queria pero los demas animales no, eran muy hostiles y ya de primeras no lo aceptaron, asi que volvio a buscar un nuevo hogar"
+              : "Encontro otra granja que la llevaba una anciana muy muy amable. Creyo que alli podria ser feliz por fin, pero habia un pequeno detalle...."}
+          </button>
+        </div>
+        <div className="mt-[clamp(10px,1.4vw,20px)] flex items-center justify-center gap-[clamp(10px,2vw,28px)] text-[clamp(18px,2.2vw,36px)] font-semibold text-neutral-900">
+          <button
+            type="button"
+            aria-label="Texto anterior"
+            disabled={!canGoPrev}
+            onClick={() => setStoryStep((prev) => Math.max(prev - 1, 0))}
+            className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
+              canGoPrev ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+            }`}
+          >
+            &larr;
+          </button>
+          <button
+            type="button"
+            aria-label="Texto siguiente"
+            disabled={!canGoNext}
+            onClick={() => {
+              if (canGoNext) {
+                setStoryStep((prev) => Math.min(prev + 1, maxStep));
+              }
+            }}
+            className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
+              canGoNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+            }`}
+          >
+            &rarr;
+          </button>
+        </div>
+      </div>
       {showShortThought && (
         <div className="absolute left-[58%] top-[46%] z-30 max-w-[min(34vw,300px)] rounded-[24px] bg-white/75 px-[clamp(10px,1.4vw,16px)] py-[clamp(8px,1.2vw,12px)] text-[clamp(12px,1.1vw,18px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
           En cuanto pueda, cazo al nuevo
@@ -83,7 +75,7 @@ export default function Section8() {
       )}
       {showLongThought && (
         <div className="absolute left-[68%] top-[66%] z-30 max-w-[min(40vw,360px)] rounded-[24px] bg-white/75 px-[clamp(10px,1.4vw,16px)] py-[clamp(8px,1.2vw,12px)] text-[clamp(12px,1.1vw,18px)] leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-          que se marche ya, no quiero más gente en MI granja
+          que se marche ya, no quiero mas gente en MI granja
           <span className="absolute -bottom-[9px] left-[26%] h-[10px] w-[10px] rounded-full bg-white/75" />
           <span className="absolute -bottom-[18px] left-[22%] h-[8px] w-[8px] rounded-full bg-white/75" />
           <span className="absolute -bottom-[24px] left-[19%] h-[6px] w-[6px] rounded-full bg-white/75" />

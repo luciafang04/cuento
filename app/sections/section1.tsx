@@ -1,9 +1,8 @@
 ﻿import Image from "next/image";
-import { RefObject } from "react";
+import { RefObject, useEffect, useMemo, useState } from "react";
 
 type Section1Props = {
   firstSectionRef: RefObject<HTMLElement | null>;
-  showAngryMom: boolean;
   allEggsBroken: boolean;
   eggClicks: number[];
   onEggClick: (index: number) => void;
@@ -55,12 +54,41 @@ const eggPositions = [
 
 export default function Section1({
   firstSectionRef,
-  showAngryMom,
   allEggsBroken,
   eggClicks,
   onEggClick,
 }: Section1Props) {
   const hasStartedEggClicks = eggClicks.some((clicks) => clicks > 0);
+  const [storyStep, setStoryStep] = useState(0);
+
+  const storyTexts = useMemo(() => {
+    const texts = [
+      "Un día soleado mamá pato estaba muy feliz ya que sabía que sus polluelos estaban a punto de nacer.",
+    ];
+
+    if (allEggsBroken) {
+      texts.push(
+        "Todo era alegría para la granja ya que todos los pollitos habían nacido sanos y preciosos. Pero..."
+      );
+      texts.push("¿Por qué había uno diferente?");
+    }
+
+    return texts;
+  }, [allEggsBroken]);
+
+  useEffect(() => {
+    if (allEggsBroken) {
+      setStoryStep((prev) => (prev < 1 ? 1 : prev));
+    }
+  }, [allEggsBroken]);
+
+  useEffect(() => {
+    setStoryStep((prev) => Math.min(prev, storyTexts.length - 1));
+  }, [storyTexts.length]);
+
+  const canGoPrev = storyStep > 0;
+  const canGoNext = storyStep < storyTexts.length - 1;
+  const isAngryTextStep = allEggsBroken && storyStep === storyTexts.length - 1 && storyTexts.length > 1;
 
   return (
     <section
@@ -69,28 +97,68 @@ export default function Section1({
       style={{ backgroundImage: "url('/1.png')" }}
     >
       <Image
-        src={showAngryMom ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
+        src={isAngryTextStep ? "/img/mama_pato/mama_enfadada.png" : "/img/mama_pato/mama.png"}
         alt="Mamá pato"
         width={260}
         height={260}
         priority
         className={`pointer-events-none absolute bottom-[clamp(-14px,-0.6vw,8px)] z-40 h-auto ${
-          showAngryMom
+          isAngryTextStep
             ? "right-[clamp(-62px,-4vw,-8px)] w-[clamp(470px,56vw,1020px)]"
             : "right-[clamp(-8px,-0.6vw,16px)] w-[clamp(300px,36vw,640px)]"
         }`}
         style={{ transform: "scaleX(-1)" }}
       />
-      <p className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-40 w-[min(82vw,700px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-center text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-        {allEggsBroken
-          ? "Todo era alegría para la granja ya que todos los pollitos habían nacido sanos y preciosos. Pero..."
-          : "Un día soleado mamá pato estaba muy feliz ya que sabía que sus polluelos estaban a punto de nacer."}
-      </p>
-      {showAngryMom && (
-        <p className="absolute left-1/2 top-[calc(clamp(26px,7vh,110px)+clamp(108px,13vh,186px))] z-40 w-[min(78vw,640px)] -translate-x-1/2 rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,24px)] py-[clamp(10px,1.2vw,18px)] text-center text-[clamp(18px,2vw,34px)] font-semibold leading-[1.25] text-neutral-900 shadow-lg backdrop-blur-[1px]">
-          ¿Por qué había uno diferente?
-        </p>
-      )}
+      <div className="absolute left-1/2 top-[clamp(26px,7vh,110px)] z-40 w-[min(82vw,700px)] -translate-x-1/2 text-center">
+        <div className="rounded-2xl bg-white/60 px-[clamp(14px,1.8vw,26px)] py-[clamp(12px,1.5vw,22px)] text-[clamp(16px,1.7vw,30px)] leading-[1.35] text-neutral-900 shadow-lg backdrop-blur-[1px] min-h-[clamp(96px,13vh,170px)]">
+          <button
+            type="button"
+            onClick={() => {
+              if (canGoNext) {
+                setStoryStep((prev) => Math.min(prev + 1, storyTexts.length - 1));
+              }
+            }}
+            aria-label="Avanzar texto"
+            className={`w-full border-0 bg-transparent p-0 text-center ${
+              canGoNext ? "cursor-pointer" : "cursor-default"
+            }`}
+          >
+            {storyTexts[storyStep]}
+          </button>
+        </div>
+        <div className="mt-[clamp(10px,1.4vw,20px)] flex items-center justify-center gap-[clamp(10px,2vw,28px)] text-[clamp(18px,2.2vw,36px)] font-semibold text-neutral-900">
+          <button
+            type="button"
+            aria-label="Texto anterior"
+            disabled={!canGoPrev}
+            onClick={() => {
+              if (canGoPrev) {
+                setStoryStep((prev) => Math.max(prev - 1, 0));
+              }
+            }}
+            className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
+              canGoPrev ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+            }`}
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            aria-label="Texto siguiente"
+            disabled={!canGoNext}
+            onClick={() => {
+              if (canGoNext) {
+                setStoryStep((prev) => Math.min(prev + 1, storyTexts.length - 1));
+              }
+            }}
+            className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
+              canGoNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"
+            }`}
+          >
+            →
+          </button>
+        </div>
+      </div>
       {!hasStartedEggClicks && (
         <p className="pointer-events-none absolute left-[49%] top-[66%] z-50 -translate-x-1/2 text-[clamp(9px,0.9vw,14px)] font-semibold text-neutral-900 animate-pulse">
           click!
