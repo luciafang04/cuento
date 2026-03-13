@@ -30,9 +30,9 @@ export default function Section7() {
             {clampedStep === 0 && "Después de caminar y caminar encontró un gran estanque con cisnes."}
             {clampedStep === 1 && "El patito quedó muy sorprendido al ver lo bellos que eran todos."}
             {clampedStep >= 8
-              ? "No era un patito, era un pequeño cisne."
+              ? "Y resultó que no era un patito, ¡sino un cisne!"
               : clampedStep >= 7
-                ? "El patito estuvo tanto tiempo buscando un hogar que no se dio cuenta que su plumaje cambió."
+                ? "El patito estuvo tanto tiempo buscando un hogar que no se dió cuenta que su plumaje cambió."
                 : clampedStep >= 6
                   ? "Pero esta vez pasó algo raro, ¿por qué dijeron que era uno más de los suyos si él era feo y ellos eran bonitos?"
                   : clampedStep >= 2
@@ -97,7 +97,7 @@ export default function Section7() {
               ? "w-[clamp(84px,10vw,190px)] -translate-y-[80px] top-[8%]"
               : "w-[clamp(48px,5.8vw,100px)]"
         } ${clampedStep >= 2 && clampedStep < 7 ? "-translate-y-[12px]" : ""} ${
-          clampedStep >= 6 && clampedStep < 8 ? "top-[6%] -translate-y-[96px]" : ""
+          clampedStep >= 6 && clampedStep < 8 ? "top-[12%] -translate-y-[32px]" : ""
         }`}
       />
       {clampedStep >= 3 && (
