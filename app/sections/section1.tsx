@@ -1,11 +1,12 @@
 ﻿import Image from "next/image";
-import { RefObject, useEffect, useMemo, useState } from "react";
+import { RefObject, useEffect, useMemo, useRef, useState } from "react";
 
 type Section1Props = {
   firstSectionRef: RefObject<HTMLElement | null>;
   allEggsBroken: boolean;
   eggClicks: number[];
   onEggClick: (index: number) => void;
+  canPlayNarration: boolean;
 };
 
 const normalEggSize = { width: 140, height: 170 };
@@ -57,9 +58,13 @@ export default function Section1({
   allEggsBroken,
   eggClicks,
   onEggClick,
+  canPlayNarration,
 }: Section1Props) {
   const hasStartedEggClicks = eggClicks.some((clicks) => clicks > 0);
   const [storyStep, setStoryStep] = useState(0);
+  const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playedNarrationStepsRef = useRef<Set<number>>(new Set());
+  const lastStoryStepRef = useRef(0);
 
   const storyTexts = useMemo(() => {
     const texts = [
@@ -85,6 +90,63 @@ export default function Section1({
   useEffect(() => {
     setStoryStep((prev) => Math.min(prev, storyTexts.length - 1));
   }, [storyTexts.length]);
+
+  const playNarrationStep = (step: number) => {
+    if (playedNarrationStepsRef.current.has(step)) {
+      return;
+    }
+
+    const src = `/audios/section1/${step}.mp3`;
+
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+
+    const audio = new Audio(src);
+    narrationAudioRef.current = audio;
+    playedNarrationStepsRef.current.add(step);
+    audio.volume = 1;
+
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  };
+
+  useEffect(() => {
+    if (!canPlayNarration) {
+      return;
+    }
+    if (storyStep === 0) {
+      playNarrationStep(1);
+    }
+  }, [canPlayNarration, storyStep]);
+
+  useEffect(() => {
+    if (!canPlayNarration) {
+      lastStoryStepRef.current = storyStep;
+      return;
+    }
+    const prevStep = lastStoryStepRef.current;
+    if (storyStep > prevStep) {
+      if (storyStep === 1) {
+        playNarrationStep(3);
+      } else if (storyStep === 2) {
+        playNarrationStep(4);
+      }
+    }
+    lastStoryStepRef.current = storyStep;
+  }, [canPlayNarration, storyStep]);
+
+  useEffect(() => {
+    if (!firstSectionRef.current) {
+      return;
+    }
+    const rect = firstSectionRef.current.getBoundingClientRect();
+    if (Math.abs(rect.top) > 2) {
+      firstSectionRef.current.scrollIntoView({ block: "start", behavior: "auto" });
+    }
+  }, [firstSectionRef, storyStep]);
 
   const canGoPrev = storyStep > 0;
   const canGoNext = storyStep < storyTexts.length - 1;

@@ -1,8 +1,17 @@
-import Image from "next/image";
-import { useState } from "react";
+﻿import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
-export default function Section8() {
+type Section8Props = {
+  canPlayNarration: boolean;
+};
+
+export default function Section8({ canPlayNarration }: Section8Props) {
+  const sectionRef = useRef<HTMLElement | null>(null);
   const [storyStep, setStoryStep] = useState(0);
+  const [isInView, setIsInView] = useState(false);
+  const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playedNarrationStepsRef = useRef<Set<number>>(new Set());
+  const lastStoryStepRef = useRef(0);
   const maxStep = 2;
   const clampedStep = Math.max(0, Math.min(storyStep, maxStep));
   const showShortThought = clampedStep >= 1;
@@ -11,9 +20,86 @@ export default function Section8() {
   const showThoughtfulDuck = clampedStep >= 1;
   const canGoPrev = clampedStep > 0;
   const canGoNext = clampedStep < maxStep;
+  const canPlay = canPlayNarration && isInView;
+
+  useEffect(() => {
+    const root = document.querySelector("main");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { root: root instanceof Element ? root : null, threshold: 0.6 }
+    );
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  const playNarrationStep = (step: number) => {
+    if (playedNarrationStepsRef.current.has(step)) {
+      return;
+    }
+    const src = `/audios/section8/${step}.mp3`;
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+    const audio = new Audio(src);
+    narrationAudioRef.current = audio;
+    playedNarrationStepsRef.current.add(step);
+    audio.volume = 1;
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  };
+
+  const ensureAudio1 = () => {
+    if (!canPlay) {
+      return;
+    }
+    if (storyStep === 0) {
+      playNarrationStep(1);
+    }
+  };
+
+  const advanceStep = () => {
+    if (!canGoNext) {
+      return;
+    }
+    ensureAudio1();
+    const nextStep = Math.min(storyStep + 1, maxStep);
+    setStoryStep(nextStep);
+    if (canPlay && nextStep === 1) {
+      playNarrationStep(2);
+    } else if (canPlay && nextStep === 2) {
+      playNarrationStep(3);
+    }
+  };
+
+  useEffect(() => {
+    if (canPlay && storyStep === 0) {
+      playNarrationStep(1);
+    }
+  }, [canPlay, storyStep]);
+
+  useEffect(() => {
+    if (!canPlay) {
+      lastStoryStepRef.current = storyStep;
+      return;
+    }
+    const prevStep = lastStoryStepRef.current;
+    if (storyStep > prevStep && storyStep === 1) {
+      playNarrationStep(2);
+    } else if (storyStep > prevStep && storyStep === 2) {
+      playNarrationStep(3);
+    }
+    lastStoryStepRef.current = storyStep;
+  }, [canPlay, storyStep]);
 
   return (
     <section
+      ref={sectionRef}
       className="relative h-[100vh] w-[100vw] snap-start overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/8.png')" }}
     >
@@ -22,9 +108,7 @@ export default function Section8() {
           <button
             type="button"
             onClick={() => {
-              if (canGoNext) {
-                setStoryStep((prev) => Math.min(prev + 1, maxStep));
-              }
+              advanceStep();
             }}
             aria-label="Avanzar texto"
             className={`w-full border-0 bg-transparent p-0 text-center ${
@@ -53,9 +137,7 @@ export default function Section8() {
             aria-label="Texto siguiente"
             disabled={!canGoNext}
             onClick={() => {
-              if (canGoNext) {
-                setStoryStep((prev) => Math.min(prev + 1, maxStep));
-              }
+              advanceStep();
             }}
             className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
               canGoNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"

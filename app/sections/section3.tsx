@@ -1,5 +1,5 @@
 ﻿import Image from "next/image";
-import { RefObject } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 
 type Section3Props = {
   thirdSectionRef: RefObject<HTMLElement | null>;
@@ -13,6 +13,7 @@ type Section3Props = {
   sectionThreeDuckOneRef: RefObject<HTMLDivElement | null>;
   sectionThreeDuckTwoRef: RefObject<HTMLDivElement | null>;
   sectionThreeDuckSixRef: RefObject<HTMLDivElement | null>;
+  canPlayNarration: boolean;
 };
 
 export default function Section3({
@@ -27,7 +28,12 @@ export default function Section3({
   sectionThreeDuckOneRef,
   sectionThreeDuckTwoRef,
   sectionThreeDuckSixRef,
+  canPlayNarration,
 }: Section3Props) {
+  const [isInView, setIsInView] = useState(false);
+  const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playedNarrationStepsRef = useRef<Set<number>>(new Set());
+  const lastTextStepRef = useRef(0);
   const storyTexts = [
     "Trataba siempre de acercarse e integrarse, pero nunca le había salido bien.",
     "Y eso ya le estaba cansando mucho pues siempre se sentía mal y recibía comentarios negativos de su aspecto físico.",
@@ -35,6 +41,79 @@ export default function Section3({
   const clampedStep = Math.max(0, Math.min(textStep, storyTexts.length - 1));
   const canGoPrev = clampedStep > 0;
   const canGoNext = clampedStep < storyTexts.length - 1;
+  const canPlay = canPlayNarration && isInView;
+
+  useEffect(() => {
+    const root = document.querySelector("main");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { root: root instanceof Element ? root : null, threshold: 0.6 }
+    );
+    if (thirdSectionRef.current) {
+      observer.observe(thirdSectionRef.current);
+    }
+    return () => observer.disconnect();
+  }, [thirdSectionRef]);
+
+  const playNarrationStep = (step: number) => {
+    if (playedNarrationStepsRef.current.has(step)) {
+      return;
+    }
+    const src = `/audios/section3/${step}.mp3`;
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+    const audio = new Audio(src);
+    narrationAudioRef.current = audio;
+    playedNarrationStepsRef.current.add(step);
+    audio.volume = 1;
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  };
+
+  const ensureAudio1 = () => {
+    if (!canPlay) {
+      return;
+    }
+    if (textStep === 0) {
+      playNarrationStep(1);
+    }
+  };
+
+  const advanceStep = () => {
+    if (!canGoNext) {
+      return;
+    }
+    ensureAudio1();
+    const nextStep = Math.min(clampedStep + 1, storyTexts.length - 1);
+    onTextStepChange(nextStep);
+    onAdvanceScene();
+    if (canPlay && nextStep === 1) {
+      playNarrationStep(2);
+    }
+  };
+
+  useEffect(() => {
+    if (canPlay && textStep === 0) {
+      playNarrationStep(1);
+    }
+  }, [canPlay, textStep]);
+
+  useEffect(() => {
+    if (!canPlay) {
+      lastTextStepRef.current = textStep;
+      return;
+    }
+    const prevStep = lastTextStepRef.current;
+    if (textStep > prevStep && textStep === 1) {
+      playNarrationStep(2);
+    }
+    lastTextStepRef.current = textStep;
+  }, [canPlay, textStep]);
 
   return (
     <section
@@ -47,10 +126,7 @@ export default function Section3({
           <button
             type="button"
             onClick={() => {
-              if (canGoNext) {
-                onTextStepChange(Math.min(clampedStep + 1, storyTexts.length - 1));
-                onAdvanceScene();
-              }
+              advanceStep();
             }}
             aria-label="Avanzar texto"
             className={`w-full border-0 bg-transparent p-0 text-center ${
@@ -77,10 +153,7 @@ export default function Section3({
             aria-label="Texto siguiente"
             disabled={!canGoNext}
             onClick={() => {
-              if (canGoNext) {
-                onTextStepChange(Math.min(clampedStep + 1, storyTexts.length - 1));
-                onAdvanceScene();
-              }
+              advanceStep();
             }}
             className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
               canGoNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"

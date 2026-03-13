@@ -15,6 +15,7 @@ import Section9 from "./sections/section9";
 export default function Home() {
   const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
   const [isStoryStarted, setIsStoryStarted] = useState(false);
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [isSectionTwoLocked, setIsSectionTwoLocked] = useState(false);
   const [isSectionThreeLocked, setIsSectionThreeLocked] = useState(false);
   const [sectionTwoStep, setSectionTwoStep] = useState(0);
@@ -41,7 +42,17 @@ export default function Home() {
   const sectionThreeDarkDuckRef = useRef<HTMLDivElement | null>(null);
   const allEggsBroken = eggClicks.every((clicks) => clicks >= 4);
   const showSectionThreeDarkDuck = sectionThreeStep >= 1;
-  const shouldMuteAudio = sectionTwoStep >= 1;
+  const shouldMuteAudio = isSectionTwoLocked || sectionTwoStep >= 1;
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+    const scrollContainer = mainRef.current;
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }, []);
 
   const playCrackSound = () => {
     if (shouldMuteAudio) {
@@ -65,6 +76,7 @@ export default function Home() {
 
     hasPlayedAllEggsAudio.current = true;
     chicksAudioRef.current = new Audio("/audios/audio_pollitos.wav");
+    chicksAudioRef.current.volume = 0.2;
     chicksAudioRef.current.play().catch(() => {
       // Ignore playback rejections from the browser.
     });
@@ -78,14 +90,6 @@ export default function Home() {
     chicksAudioRef.current.pause();
     chicksAudioRef.current.currentTime = 0;
   }, [shouldMuteAudio]);
-
-  useEffect(() => {
-    if (!allEggsBroken || !firstSectionRef.current) {
-      return;
-    }
-
-    firstSectionRef.current.scrollIntoView({ block: "start", behavior: "auto" });
-  }, [allEggsBroken]);
 
   useEffect(() => {
     if (!isStoryStarted || !firstSectionRef.current) {
@@ -322,16 +326,23 @@ export default function Home() {
       }`}
       style={{ touchAction: isStoryStarted ? "pan-y" : "none" }}
     >
-      <Section0 onStart={() => setIsStoryStarted(true)} />
+      <Section0
+        onStart={() => {
+          setIsStoryStarted(true);
+          setHasUserInteracted(true);
+        }}
+      />
       <Section1
         firstSectionRef={firstSectionRef}
         allEggsBroken={allEggsBroken}
         eggClicks={eggClicks}
           onEggClick={handleEggClick}
+        canPlayNarration={hasUserInteracted}
         />
         <Section2
           secondSectionRef={secondSectionRef}
           storyStep={sectionTwoStep}
+          canPlayNarration={hasUserInteracted && isSectionTwoLocked}
           onStoryStepChange={(nextStep) => {
             setSectionTwoStep(nextStep);
             if (nextStep > 0) {
@@ -345,6 +356,7 @@ export default function Home() {
           showSectionThreeSadDarkDuck={showSectionThreeSadDarkDuck}
           showSectionThreeAlertDucks={showSectionThreeAlertDucks}
           textStep={sectionThreeTextStep}
+          canPlayNarration={hasUserInteracted}
           onTextStepChange={(nextStep) => {
             setSectionThreeTextStep(nextStep);
             if (nextStep === 0) {
@@ -358,9 +370,9 @@ export default function Home() {
           sectionThreeDuckSixRef={sectionThreeDuckSixRef}
         />
         <Section4 />
-        <Section6 />
-      <Section8 />
-      <Section7 />
+        <Section6 canPlayNarration={hasUserInteracted} />
+      <Section8 canPlayNarration={hasUserInteracted} />
+      <Section7 canPlayNarration={hasUserInteracted} />
       <Section9 />
     </main>
   );

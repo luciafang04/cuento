@@ -2,17 +2,40 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-export default function Section6() {
+type Section6Props = {
+  canPlayNarration: boolean;
+};
+
+export default function Section6({ canPlayNarration }: Section6Props) {
   const sectionRef = useRef<HTMLElement | null>(null);
   const darkDuckRef = useRef<HTMLDivElement | null>(null);
   const hasStartedSadDuckAnimation = useRef(false);
   const sadDuckTimeline = useRef<gsap.core.Timeline | null>(null);
   const [storyStep, setStoryStep] = useState(0);
+  const [isInView, setIsInView] = useState(false);
+  const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playedNarrationStepsRef = useRef<Set<number>>(new Set());
+  const lastStoryStepRef = useRef(0);
   const maxStep = 4;
   const clampedStep = Math.max(0, Math.min(storyStep, maxStep));
   const visibleDialogs = Math.min(clampedStep, 3);
   const canGoPrev = clampedStep > 0;
   const canGoNext = clampedStep < maxStep;
+  const canPlay = canPlayNarration && isInView;
+
+  useEffect(() => {
+    const root = document.querySelector("main");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { root: root instanceof Element ? root : null, threshold: 0.6 }
+    );
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!darkDuckRef.current) {
@@ -66,6 +89,63 @@ export default function Section6() {
     }
   }, [clampedStep]);
 
+  const playNarrationStep = (step: number) => {
+    if (playedNarrationStepsRef.current.has(step)) {
+      return;
+    }
+    const src = `/audios/section6/${step}.mp3`;
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+    const audio = new Audio(src);
+    narrationAudioRef.current = audio;
+    playedNarrationStepsRef.current.add(step);
+    audio.volume = 1;
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  };
+
+  const ensureAudio1 = () => {
+    if (!canPlay) {
+      return;
+    }
+    if (storyStep === 0) {
+      playNarrationStep(1);
+    }
+  };
+
+  const advanceStep = () => {
+    if (!canGoNext) {
+      return;
+    }
+    ensureAudio1();
+    const nextStep = Math.min(storyStep + 1, maxStep);
+    setStoryStep(nextStep);
+    if (canPlay && nextStep === 1) {
+      playNarrationStep(2);
+    }
+  };
+
+  useEffect(() => {
+    if (canPlay && storyStep === 0) {
+      playNarrationStep(1);
+    }
+  }, [canPlay, storyStep]);
+
+  useEffect(() => {
+    if (!canPlay) {
+      lastStoryStepRef.current = storyStep;
+      return;
+    }
+    const prevStep = lastStoryStepRef.current;
+    if (storyStep > prevStep && storyStep === 1) {
+      playNarrationStep(2);
+    }
+    lastStoryStepRef.current = storyStep;
+  }, [canPlayNarration, storyStep]);
+
   return (
     <section
       ref={sectionRef}
@@ -77,9 +157,7 @@ export default function Section6() {
           <button
             type="button"
             onClick={() => {
-              if (canGoNext) {
-                setStoryStep((prev) => Math.min(prev + 1, maxStep));
-              }
+              advanceStep();
             }}
             aria-label="Avanzar texto"
             className={`w-full border-0 bg-transparent p-0 text-center ${
@@ -108,9 +186,7 @@ export default function Section6() {
             aria-label="Texto siguiente"
             disabled={!canGoNext}
             onClick={() => {
-              if (canGoNext) {
-                setStoryStep((prev) => Math.min(prev + 1, maxStep));
-              }
+              advanceStep();
             }}
             className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
               canGoNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"

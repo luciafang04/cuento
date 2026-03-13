@@ -1,17 +1,22 @@
 import Image from "next/image";
-import { RefObject } from "react";
+import { RefObject, useEffect, useRef } from "react";
 
 type Section2Props = {
   secondSectionRef: RefObject<HTMLElement | null>;
   storyStep: number;
   onStoryStepChange: (nextStep: number) => void;
+  canPlayNarration: boolean;
 };
 
 export default function Section2({
   secondSectionRef,
   storyStep,
   onStoryStepChange,
+  canPlayNarration,
 }: Section2Props) {
+  const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const playedNarrationStepsRef = useRef<Set<number>>(new Set());
+  const lastStoryStepRef = useRef(0);
   const storyTexts = [
     "El patito oscuro intentaba ser uno más en su familia.",
     "Pero no lo conseguía, le trataban diferente tanto su madre como sus hermanos.",
@@ -21,6 +26,63 @@ export default function Section2({
   const canGoNext = clampedStep < storyTexts.length - 1;
   const isSceneTriggered = clampedStep >= 1;
   const showDoubtDarkDuck = clampedStep >= 1;
+
+  const ensureAudio1 = () => {
+    if (storyStep === 0) {
+      playNarrationStep(1);
+    }
+  };
+
+  const advanceStep = () => {
+    if (!canGoNext) {
+      return;
+    }
+    ensureAudio1();
+    const nextStep = Math.min(clampedStep + 1, storyTexts.length - 1);
+    onStoryStepChange(nextStep);
+    if (nextStep === 1) {
+      playNarrationStep(2);
+    }
+  };
+
+  const playNarrationStep = (step: number) => {
+    if (playedNarrationStepsRef.current.has(step)) {
+      return;
+    }
+
+    const src = `/audios/section2/${step}.mp3`;
+
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+
+    const audio = new Audio(src);
+    narrationAudioRef.current = audio;
+    playedNarrationStepsRef.current.add(step);
+    audio.volume = 1;
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  };
+
+  useEffect(() => {
+    if (canPlayNarration && storyStep === 0) {
+      playNarrationStep(1);
+    }
+  }, [canPlayNarration, storyStep]);
+
+  useEffect(() => {
+    if (!canPlayNarration) {
+      lastStoryStepRef.current = storyStep;
+      return;
+    }
+    const prevStep = lastStoryStepRef.current;
+    if (storyStep > prevStep && storyStep === 1) {
+      playNarrationStep(2);
+    }
+    lastStoryStepRef.current = storyStep;
+  }, [canPlayNarration, storyStep]);
 
   return (
     <section
@@ -33,9 +95,7 @@ export default function Section2({
           <button
             type="button"
             onClick={() => {
-              if (canGoNext) {
-                onStoryStepChange(Math.min(clampedStep + 1, storyTexts.length - 1));
-              }
+              advanceStep();
             }}
             aria-label="Avanzar texto"
             className={`w-full border-0 bg-transparent p-0 text-center ${
@@ -61,7 +121,7 @@ export default function Section2({
             type="button"
             aria-label="Texto siguiente"
             disabled={!canGoNext}
-            onClick={() => onStoryStepChange(Math.min(clampedStep + 1, storyTexts.length - 1))}
+            onClick={() => advanceStep()}
             className={`rounded-full px-[clamp(8px,1vw,16px)] py-[clamp(2px,0.4vw,6px)] ${
               canGoNext ? "cursor-pointer" : "cursor-not-allowed opacity-40"
             }`}
