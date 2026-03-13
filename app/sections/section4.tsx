@@ -72,7 +72,9 @@ export default function Section4() {
             alt={isSunClicked ? "Patito oscuro con bolsa" : "Patito oscuro triste"}
             width={260}
             height={260}
-            className="h-auto w-[clamp(86px,10.5vw,180px)]"
+            className={`h-auto ${
+              isSunClicked ? "w-[clamp(70px,8.5vw,150px)]" : "w-[clamp(86px,10.5vw,180px)]"
+            }`}
           />
         </div>
       </div>

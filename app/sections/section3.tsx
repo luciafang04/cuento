@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import { RefObject } from "react";
 
 type Section3Props = {

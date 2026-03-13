@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import Section0 from "./sections/section0";
 import Section1 from "./sections/section1";
 import Section2 from "./sections/section2";
 import Section3 from "./sections/section3";
@@ -13,6 +14,7 @@ import Section9 from "./sections/section9";
 
 export default function Home() {
   const [eggClicks, setEggClicks] = useState([0, 0, 0, 0]);
+  const [isStoryStarted, setIsStoryStarted] = useState(false);
   const [isSectionTwoLocked, setIsSectionTwoLocked] = useState(false);
   const [isSectionThreeLocked, setIsSectionThreeLocked] = useState(false);
   const [sectionTwoStep, setSectionTwoStep] = useState(0);
@@ -84,6 +86,14 @@ export default function Home() {
 
     firstSectionRef.current.scrollIntoView({ block: "start", behavior: "auto" });
   }, [allEggsBroken]);
+
+  useEffect(() => {
+    if (!isStoryStarted || !firstSectionRef.current) {
+      return;
+    }
+
+    firstSectionRef.current.scrollIntoView({ block: "start", behavior: "smooth" });
+  }, [isStoryStarted]);
 
 
   useEffect(() => {
@@ -305,43 +315,50 @@ export default function Home() {
   }, [sectionThreeStep]);
 
   return (
-    <main ref={mainRef} className="h-screen w-screen snap-y snap-mandatory overflow-y-auto overflow-x-hidden">
+    <main
+      ref={mainRef}
+      className={`h-screen w-screen overflow-x-hidden ${
+        isStoryStarted ? "snap-y snap-mandatory overflow-y-auto" : "overflow-hidden"
+      }`}
+      style={{ touchAction: isStoryStarted ? "pan-y" : "none" }}
+    >
+      <Section0 onStart={() => setIsStoryStarted(true)} />
       <Section1
         firstSectionRef={firstSectionRef}
         allEggsBroken={allEggsBroken}
         eggClicks={eggClicks}
-        onEggClick={handleEggClick}
-      />
-      <Section2
-        secondSectionRef={secondSectionRef}
-        storyStep={sectionTwoStep}
-        onStoryStepChange={(nextStep) => {
-          setSectionTwoStep(nextStep);
-          if (nextStep > 0) {
-            hasStartedSectionTwoSequence.current = true;
-          }
-        }}
-      />
-      <Section3
-        thirdSectionRef={thirdSectionRef}
-        showSectionThreeDarkDuck={showSectionThreeDarkDuck}
-        showSectionThreeSadDarkDuck={showSectionThreeSadDarkDuck}
-        showSectionThreeAlertDucks={showSectionThreeAlertDucks}
-        textStep={sectionThreeTextStep}
-        onTextStepChange={(nextStep) => {
-          setSectionThreeTextStep(nextStep);
-          if (nextStep === 0) {
-            setSectionThreeStep(0);
-          }
-        }}
-        onAdvanceScene={() => setSectionThreeStep(1)}
-        sectionThreeDarkDuckRef={sectionThreeDarkDuckRef}
-        sectionThreeDuckOneRef={sectionThreeDuckOneRef}
-        sectionThreeDuckTwoRef={sectionThreeDuckTwoRef}
-        sectionThreeDuckSixRef={sectionThreeDuckSixRef}
-      />
-      <Section4 />
-      <Section6 />
+          onEggClick={handleEggClick}
+        />
+        <Section2
+          secondSectionRef={secondSectionRef}
+          storyStep={sectionTwoStep}
+          onStoryStepChange={(nextStep) => {
+            setSectionTwoStep(nextStep);
+            if (nextStep > 0) {
+              hasStartedSectionTwoSequence.current = true;
+            }
+          }}
+        />
+        <Section3
+          thirdSectionRef={thirdSectionRef}
+          showSectionThreeDarkDuck={showSectionThreeDarkDuck}
+          showSectionThreeSadDarkDuck={showSectionThreeSadDarkDuck}
+          showSectionThreeAlertDucks={showSectionThreeAlertDucks}
+          textStep={sectionThreeTextStep}
+          onTextStepChange={(nextStep) => {
+            setSectionThreeTextStep(nextStep);
+            if (nextStep === 0) {
+              setSectionThreeStep(0);
+            }
+          }}
+          onAdvanceScene={() => setSectionThreeStep(1)}
+          sectionThreeDarkDuckRef={sectionThreeDarkDuckRef}
+          sectionThreeDuckOneRef={sectionThreeDuckOneRef}
+          sectionThreeDuckTwoRef={sectionThreeDuckTwoRef}
+          sectionThreeDuckSixRef={sectionThreeDuckSixRef}
+        />
+        <Section4 />
+        <Section6 />
       <Section8 />
       <Section7 />
       <Section9 />

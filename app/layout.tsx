@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
-import { Indie_Flower } from "next/font/google";
+import { Archivo_Black, Indie_Flower } from "next/font/google";
 import "./globals.css";
 
 const indieFlower = Indie_Flower({
   variable: "--font-indie-flower",
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const archivoBlack = Archivo_Black({
+  variable: "--font-archivo-black",
   weight: "400",
   subsets: ["latin"],
 });
@@ -20,7 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${indieFlower.variable} ${indieFlower.className} antialiased`}>
+      <body
+        className={`${indieFlower.variable} ${archivoBlack.variable} ${indieFlower.className} antialiased`}
+      >
         {children}
       </body>
     </html>

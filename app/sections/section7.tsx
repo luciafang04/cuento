@@ -96,7 +96,9 @@ export default function Section7() {
             : clampedStep >= 6
               ? "w-[clamp(84px,10vw,190px)] -translate-y-[80px] top-[8%]"
               : "w-[clamp(48px,5.8vw,100px)]"
-        } ${clampedStep >= 2 && clampedStep < 7 ? "-translate-y-[12px]" : ""}`}
+        } ${clampedStep >= 2 && clampedStep < 7 ? "-translate-y-[12px]" : ""} ${
+          clampedStep >= 6 && clampedStep < 8 ? "top-[6%] -translate-y-[96px]" : ""
+        }`}
       />
       {clampedStep >= 3 && (
         <div className="absolute left-[30%] top-[38%] z-30 max-w-[min(28vw,240px)] rounded-[22px] bg-white/75 px-[clamp(8px,1.2vw,14px)] py-[clamp(6px,1vw,12px)] text-[clamp(11px,1vw,16px)] leading-[1.2] text-neutral-900 shadow-lg backdrop-blur-[1px]">

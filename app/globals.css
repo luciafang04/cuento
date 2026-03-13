@@ -24,6 +24,10 @@ body {
   font-family: var(--font-indie-flower), cursive;
 }
 
+.font-archivo-black {
+  font-family: var(--font-archivo-black), sans-serif;
+}
+
 @keyframes click-blink {
   0%,
   100% {
