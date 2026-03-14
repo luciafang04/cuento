@@ -369,12 +369,11 @@ export default function Home() {
           sectionThreeDuckTwoRef={sectionThreeDuckTwoRef}
           sectionThreeDuckSixRef={sectionThreeDuckSixRef}
         />
-        <Section4 />
+        <Section4 canPlayNarration={hasUserInteracted} />
         <Section6 canPlayNarration={hasUserInteracted} />
       <Section8 canPlayNarration={hasUserInteracted} />
       <Section7 canPlayNarration={hasUserInteracted} />
-      <Section9 />
+      <Section9 canPlayNarration={hasUserInteracted} />
     </main>
   );
 }
-

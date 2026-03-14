@@ -123,7 +123,7 @@ export default function Section6({ canPlayNarration }: Section6Props) {
     ensureAudio1();
     const nextStep = Math.min(storyStep + 1, maxStep);
     setStoryStep(nextStep);
-    if (canPlay && nextStep === 1) {
+    if (canPlay && nextStep === 4) {
       playNarrationStep(2);
     }
   };
@@ -140,7 +140,7 @@ export default function Section6({ canPlayNarration }: Section6Props) {
       return;
     }
     const prevStep = lastStoryStepRef.current;
-    if (storyStep > prevStep && storyStep === 1) {
+    if (storyStep > prevStep && storyStep === 4) {
       playNarrationStep(2);
     }
     lastStoryStepRef.current = storyStep;

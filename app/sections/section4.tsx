@@ -2,10 +2,34 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-export default function Section4() {
+type Section4Props = {
+  canPlayNarration: boolean;
+};
+
+export default function Section4({ canPlayNarration }: Section4Props) {
   const [isSunClicked, setIsSunClicked] = useState(false);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [isInView, setIsInView] = useState(false);
+  const narrationAudioRef = useRef<HTMLAudioElement | null>(null);
+  const hasPlayedNarrationRef = useRef(false);
+  const hasPlayedSunAudioRef = useRef(false);
   const darkDuckRef = useRef<HTMLDivElement | null>(null);
   const darkDuckTimeline = useRef<gsap.core.Timeline | null>(null);
+  const canPlay = canPlayNarration && isInView;
+
+  useEffect(() => {
+    const root = document.querySelector("main");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting);
+      },
+      { root: root instanceof Element ? root : null, threshold: 0.6 }
+    );
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!isSunClicked || !darkDuckRef.current) {
@@ -30,8 +54,43 @@ export default function Section4() {
     };
   }, [isSunClicked]);
 
+  useEffect(() => {
+    if (!canPlay || hasPlayedNarrationRef.current) {
+      return;
+    }
+    const audio = new Audio("/audios/section4/1.mp3");
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+    narrationAudioRef.current = audio;
+    hasPlayedNarrationRef.current = true;
+    audio.volume = 1;
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  }, [canPlay]);
+
+  useEffect(() => {
+    if (!canPlay || !isSunClicked || hasPlayedSunAudioRef.current) {
+      return;
+    }
+    const audio = new Audio("/audios/section5/1.mp3");
+    if (narrationAudioRef.current) {
+      narrationAudioRef.current.pause();
+      narrationAudioRef.current.currentTime = 0;
+    }
+    narrationAudioRef.current = audio;
+    hasPlayedSunAudioRef.current = true;
+    audio.volume = 1;
+    audio.play().catch(() => {
+      // Ignore autoplay restrictions.
+    });
+  }, [canPlay, isSunClicked]);
+
   return (
     <section
+      ref={sectionRef}
       className="relative h-[100vh] w-[100vw] snap-start overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: isSunClicked ? "url('/5.png')" : "url('/4.png')" }}
     >
@@ -45,7 +104,23 @@ export default function Section4() {
           <button
             type="button"
             aria-label="Cambiar escena con el sol"
-            onClick={() => setIsSunClicked(true)}
+            onClick={() => {
+              setIsSunClicked(true);
+              if (!canPlay || hasPlayedSunAudioRef.current) {
+                return;
+              }
+              const audio = new Audio("/audios/section5/1.mp3");
+              if (narrationAudioRef.current) {
+                narrationAudioRef.current.pause();
+                narrationAudioRef.current.currentTime = 0;
+              }
+              narrationAudioRef.current = audio;
+              hasPlayedSunAudioRef.current = true;
+              audio.volume = 1;
+              audio.play().catch(() => {
+                // Ignore autoplay restrictions.
+              });
+            }}
             className="absolute left-1/2 top-0 z-20 -translate-x-1/2 -translate-y-1/2 cursor-pointer border-0 bg-transparent p-0"
           >
             <Image
